@@ -1,0 +1,92 @@
+name: Create Tag on Merge
+
+on:
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - "**"
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch all branches
+        run: git fetch --all
+
+      - name: Check if merge from develop
+        id: check-merge
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+
+          # Проверяем сообщение коммита на наличие merge из develop
+          if echo "$COMMIT_MSG" | grep -qiE "merge.*branch.*['\"]develop['\"]|merge.*develop|merge.*pull.*request"; then
+            # Дополнительно проверяем, является ли это merge commit
+            if git cat-file -p ${{ github.sha }} | grep -q "^parent.*parent"; then
+              echo "is_merge_from_develop=true" >> $GITHUB_OUTPUT
+              echo "Detected merge from develop"
+              exit 0
+            fi
+          fi
+
+          echo "is_merge_from_develop=false" >> $GITHUB_OUTPUT
+          echo "Not a merge from develop"
+
+      - name: Get version from package.json
+        id: package-version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Generate tag name
+        id: tag-name
+        if: steps.check-merge.outputs.is_merge_from_develop == 'true'
+        run: |
+          VERSION="${{ steps.package-version.outputs.version }}"
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+
+          # Если версия 0.0.0, используем формат v0.0.0-{timestamp}-{sha}
+          if [ "$VERSION" = "0.0.0" ]; then
+            TAG_NAME="v0.0.0-${TIMESTAMP}-${SHORT_SHA}"
+          else
+            TAG_NAME="v${VERSION}"
+          fi
+
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+
+      - name: Check if tag already exists
+        id: check-tag
+        if: steps.check-merge.outputs.is_merge_from_develop == 'true'
+        run: |
+          TAG="${{ steps.tag-name.outputs.tag }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag $TAG does not exist"
+          fi
+
+      - name: Create and push tag
+        if: steps.check-merge.outputs.is_merge_from_develop == 'true' && steps.check-tag.outputs.exists == 'false'
+        run: |
+          TAG="${{ steps.tag-name.outputs.tag }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG - Merge from develop"
+          git push origin "$TAG"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag already exists
+        if: steps.check-merge.outputs.is_merge_from_develop == 'true' && steps.check-tag.outputs.exists == 'true'
+        run: |
+          echo "Tag ${{ steps.tag-name.outputs.tag }} already exists, skipping tag creation"

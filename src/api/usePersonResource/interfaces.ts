@@ -1,0 +1,29 @@
+export interface PersonDTO {
+  id?: string;
+  personType: string;
+  lastName: string;
+  firstName: string;
+  middleName?: string;
+  lastNameLatin?: string;
+  firstNameLatin?: string;
+  middleNameLatin?: string;
+  birthDate?: string;
+  name?: string;
+  legalForm?: string;
+  roles?: Array<string>;
+  citizenship?: string;
+  code?: string;
+  residencyType?: string;
+  inn?: string;
+  foreignTinCountry?: string;
+  foreignTin?: string;
+  okpo?: string;
+  okved?: string;
+  additionalOkved?: string;
+  okato?: string;
+  okfs?: string;
+  snils?: string;
+  lawyerRegistryNumber?: string;
+  notaryRegistryNumber?: string;
+  ucdId?: string;
+}

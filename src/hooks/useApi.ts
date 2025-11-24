@@ -1,10 +1,10 @@
-import { useState, useCallback, useEffect } from 'react';
-import axiosInstance from '../api/axios';
-import type { AxiosRequestConfig } from 'axios';
+import { useState, useCallback, useEffect } from "react";
+import axiosInstance from "../api/axios";
+import type { AxiosRequestConfig } from "axios";
 
 interface UseApiOptions {
   url: string;
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   immediate?: boolean | FetchParams; // Выполнить запрос сразу при монтировании (можно передать параметры)
 }
 
@@ -15,7 +15,11 @@ interface FetchParams {
   config?: AxiosRequestConfig;
 }
 
-export const useApi = <T = any>({ url, method, immediate = false }: UseApiOptions) => {
+export const useApi = <T = any>({
+  url,
+  method,
+  immediate = false,
+}: UseApiOptions) => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
@@ -27,40 +31,40 @@ export const useApi = <T = any>({ url, method, immediate = false }: UseApiOption
 
       try {
         let requestUrl = url;
-        
+
         // Если передан id, добавляем его в URL
         if (id !== undefined) {
           requestUrl = `${url}/${id}`;
         }
 
         let response;
-        
+
         switch (method) {
-          case 'GET':
+          case "GET":
             response = await axiosInstance.get<T>(requestUrl, {
               params,
               ...config,
             });
             break;
-          case 'POST':
+          case "POST":
             response = await axiosInstance.post<T>(requestUrl, body, {
               params,
               ...config,
             });
             break;
-          case 'PUT':
+          case "PUT":
             response = await axiosInstance.put<T>(requestUrl, body, {
               params,
               ...config,
             });
             break;
-          case 'PATCH':
+          case "PATCH":
             response = await axiosInstance.patch<T>(requestUrl, body, {
               params,
               ...config,
             });
             break;
-          case 'DELETE':
+          case "DELETE":
             response = await axiosInstance.delete<T>(requestUrl, {
               params,
               ...config,
@@ -73,20 +77,21 @@ export const useApi = <T = any>({ url, method, immediate = false }: UseApiOption
         setData(response.data);
         return response.data;
       } catch (err: any) {
-        const error = err instanceof Error ? err : new Error('An error occurred');
+        const error =
+          err instanceof Error ? err : new Error("An error occurred");
         setError(error);
         throw error;
       } finally {
         setLoading(false);
       }
     },
-    [url, method]
+    [url, method],
   );
 
   // Выполнить запрос сразу при монтировании, если immediate = true или объект с параметрами
   useEffect(() => {
     if (immediate) {
-      if (typeof immediate === 'boolean') {
+      if (typeof immediate === "boolean") {
         fetch();
       } else {
         // immediate - это объект с параметрами
@@ -98,4 +103,3 @@ export const useApi = <T = any>({ url, method, immediate = false }: UseApiOption
 
   return { data, fetch, loading, error };
 };
-

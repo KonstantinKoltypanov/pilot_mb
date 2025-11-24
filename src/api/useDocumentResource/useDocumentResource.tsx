@@ -37,7 +37,7 @@ export const useDocumentResource = () => {
   //   method: "GET",
   // });
 
-  const getPersonDocumentApi = useApi<any>({
+  const getPersonDocumentApi = useApi<DocumentDTO>({
     url: "/api/documents/persons",
     method: "GET",
   });

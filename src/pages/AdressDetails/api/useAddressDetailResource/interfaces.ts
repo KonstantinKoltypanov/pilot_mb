@@ -1,3 +1,5 @@
+import type { AddressDTO } from "../../../AdressContactsTab/api/useAddressResource/interfaces";
+
 export interface AddressDetailDTO {
   id?: string;
   level: string;

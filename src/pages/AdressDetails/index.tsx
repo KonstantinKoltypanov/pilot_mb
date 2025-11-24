@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { ContentLayoutBody, ContentLayoutFooter } from "./ContentLayoutHelpers";
 import { Flex, Form, Input, Typography } from "antd";
-import { Table1 } from "./components/Table1";
+import { DetailsTable } from "./components/Details";
 import { useAddressDetailResource } from "./api/useAddressDetailResource/useAddressDetailResource";
 import { useParams } from "react-router-dom";
 
@@ -100,7 +100,7 @@ export const AdressDetails: React.FC<ContentLayoutProps> = (props) => {
             />
           </Form.Item>
         </Form>
-        <Table1 />
+        <DetailsTable />
       </ContentLayoutBody>
       {!hideFooter && <ContentLayoutFooter></ContentLayoutFooter>}
     </div>

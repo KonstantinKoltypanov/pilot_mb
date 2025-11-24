@@ -2,8 +2,6 @@ import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ContentLayoutBody, ContentLayoutFooter } from "./ContentLayoutHelpers";
 import {
-  Button,
-  Card,
   Flex,
   Form,
   Input,
@@ -28,7 +26,7 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
 
   const {
     getDocumentApi: { fetch, data, loading },
-    patchDocumentApi: { fetch: save, data: savedData, loading: savedLoading },
+    patchDocumentApi: { fetch: save, loading: savedLoading },
   } = useDocumentResource();
 
   useEffect(() => {
@@ -182,10 +180,12 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             gap={12}
           >
             <SyncOutlined
+            spin={loading}
               style={{ fontSize: 24, color: "blue" }}
               onClick={handleRefresh}
             />
             <CheckCircleOutlined
+            spin={savedLoading}
               style={{ fontSize: 24, color: "green" }}
               onClick={handleSave}
             />

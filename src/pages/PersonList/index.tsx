@@ -325,7 +325,7 @@ export const PersonList: React.FC = () => {
                 style={{ width: 250 }}
                 maxTagCount="responsive"
               >
-                {personTypes.map((item, index) => {
+                {personTypes.map((item) => {
                   if (!item.mnemocode) return null;
                   return (
                     <Select.Option key={item.mnemocode} value={item.mnemocode}>

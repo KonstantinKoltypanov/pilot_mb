@@ -2,11 +2,13 @@ import React, { useMemo } from "react";
 import { Table } from "antd";
 import type { TablePaginationConfig } from "antd/es/table";
 import { colDefs } from "./colDefs";
+import type { AddressDetailDTO } from "../../api/useAddressDetailResource/interfaces";
 
-interface Table1Props {}
+interface DetailsTableProps {
+  data?: AddressDetailDTO[]
+}
 
-export const Table1: React.FC<Table1Props> = () => {
-  const dataSource = [];
+export const DetailsTable: React.FC<DetailsTableProps> = ({ data }) => {
 
   const scrollY = useMemo(() => ({ y: 360 }), []);
 
@@ -17,7 +19,7 @@ export const Table1: React.FC<Table1Props> = () => {
       size="middle"
       bordered
       columns={colDefs}
-      dataSource={dataSource}
+      dataSource={data || []}
       pagination={paginationConfig}
       scroll={scrollY}
       expandable={undefined}

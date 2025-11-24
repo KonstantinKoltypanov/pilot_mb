@@ -1,3 +1,5 @@
+import type { PersonDTO } from "../../../../api/usePersonResource/interfaces";
+
 export interface AddressDTO {
   id?: string;
   addressType: string;

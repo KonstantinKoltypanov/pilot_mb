@@ -1,3 +1,5 @@
+import type { PersonDTO } from "../usePersonResource/interfaces";
+
 export interface DocumentDTO {
   id?: string;
   documentType: string;

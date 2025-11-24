@@ -8,11 +8,13 @@ import {
   Typography,
   Spin,
   notification,
+  DatePicker,
 } from "antd";
 import { PeriodTable } from "./components/PeriodTable";
 import { useDocumentResource } from "../../api/useDocumentResource/useDocumentResource";
 import CheckCircleOutlined from "@ant-design/icons/lib/icons/CheckCircleOutlined";
 import SyncOutlined from "@ant-design/icons/lib/icons/SyncOutlined";
+import dayjs from "dayjs";
 
 interface ContentLayoutProps {
   title?: string;
@@ -151,11 +153,31 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             align="flex-start"
             gap={8}
           >
-            <Form.Item label="Дата выдачи" name="issueDate">
-              <Input placeholder="Введите текст..." disabled={false} />
+             <Form.Item
+              label="Дата выдачи"
+              name="issueDate"
+              getValueProps={(value) => {
+                if (!value) return { value: undefined };
+                if (dayjs.isDayjs(value)) {
+                  return { value };
+                }
+                return { value: dayjs(value) };
+              }}
+            >
+              <DatePicker style={{ width: "100%" }} disabled={false} />
             </Form.Item>
-            <Form.Item label="Дата окончания" name="expirationDate">
-              <Input placeholder="Введите текст..." disabled={false} />
+            <Form.Item
+              label="Дата окончания"
+              name="expirationDate"
+              getValueProps={(value) => {
+                if (!value) return { value: undefined };
+                if (dayjs.isDayjs(value)) {
+                  return { value };
+                }
+                return { value: dayjs(value) };
+              }}
+            >
+              <DatePicker style={{ width: "100%" }} disabled={false} />
             </Form.Item>
           </Flex>
           <Flex
@@ -168,8 +190,18 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             <Form.Item label="Статус документа" name="documentStatus">
               <Input placeholder="Введите текст..." disabled={false} />
             </Form.Item>
-            <Form.Item label="Дата отмены" name="cancellationDate">
-              <Input placeholder="Введите текст..." disabled={false} />
+             <Form.Item
+              label="Дата отмены"
+              name="cancellationDate"
+              getValueProps={(value) => {
+                if (!value) return { value: undefined };
+                if (dayjs.isDayjs(value)) {
+                  return { value };
+                }
+                return { value: dayjs(value) };
+              }}
+            >
+              <DatePicker style={{ width: "100%" }} disabled={false} />
             </Form.Item>
           </Flex>
           <Flex

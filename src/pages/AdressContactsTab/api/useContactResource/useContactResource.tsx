@@ -31,20 +31,10 @@ export const useContactResource = () => {
     method: "POST",
   });
 
-  // const getHistoryApi = useApi<any>({
-  //   url: "/api/contacts/history",
-  //   method: "GET",
-  // });
-
   const getPersonContactsApi = useApi<ContactDTO[]>({
     url: "/api/contacts/persons",
     method: "GET",
   });
-
-  // const getHistoryApi = useApi<any>({
-  //   url: "/api/contacts/persons/history",
-  //   method: "GET",
-  // });
 
   const getCardApi = useApi<any>({
     url: "/api/contacts/persons/card",
@@ -58,9 +48,7 @@ export const useContactResource = () => {
     patchContactApi,
     getContactsApi,
     postContactsApi,
-    // getHistoryApi,
     getPersonContactsApi,
-    // getHistoryApi,
     getCardApi,
   };
 };

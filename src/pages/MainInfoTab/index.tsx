@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { Card, Flex, Form, Input, Select } from "antd";
+import { Card, DatePicker, Flex, Form, Input, Select } from "antd";
+import dayjs from "dayjs";
 import { AdditionalParams } from "./components/AdditionalParams";
 import type { PersonDTO } from "../../api/usePersonResource/interfaces";
 
@@ -23,9 +24,14 @@ interface ContainerProps {
 export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
   const [form] = Form.useForm();
 
-  // Установка значений формы при получении данных
   useEffect(() => {
-    form.setFieldsValue(data);
+    if (data) {
+      const formData = {
+        ...data,
+        birthDate: data.birthDate ? dayjs(data.birthDate) : undefined,
+      };
+      form.setFieldsValue(formData);
+    }
   }, [data, form]);
 
   return (
@@ -58,8 +64,18 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
                 <Input placeholder="Введите текст..." disabled={false} />
               </Form.Item>
             </Flex>
-            <Form.Item label="Дата рождения" name="birthDate">
-              <Input placeholder="Введите текст..." disabled={false} />
+            <Form.Item
+              label="Дата рождения"
+              name="birthDate"
+              getValueProps={(value) => {
+                if (!value) return { value: undefined };
+                if (dayjs.isDayjs(value)) {
+                  return { value };
+                }
+                return { value: dayjs(value) };
+              }}
+            >
+              <DatePicker style={{ width: "100%" }} disabled={false} />
             </Form.Item>
             <Form.Item label="Организационно-правовая форма" name="legalForm">
               <Select
@@ -199,7 +215,7 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
             width: "100%",
           }}
         >
-          <AdditionalParams data={undefined} />
+          <AdditionalParams data={data} references={references} />
         </div>
       </Card>
     </>

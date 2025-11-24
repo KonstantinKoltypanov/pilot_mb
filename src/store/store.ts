@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
   reducer: {
-    // Добавьте ваши редьюсеры здесь
   },
 });
 

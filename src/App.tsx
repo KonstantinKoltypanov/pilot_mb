@@ -53,13 +53,11 @@ function AppContent() {
     <div className="app">
       <KeycloakHandler />
       <Routes>
-        {/* Более специфичные маршруты идут первыми */}
         <Route path="/person/:id" element={<PersonCard />} />
         <Route path="/document/:id" element={<DocumentCard />} />
         <Route path="/address/:id" element={<AdressDetails />} />
         <Route path="/persons" element={<PersonList />} />
         <Route path="/" element={<PersonList />} />
-        {/* Fallback для несуществующих маршрутов */}
         <Route
           path="*"
           element={

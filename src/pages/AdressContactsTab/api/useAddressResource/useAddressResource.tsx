@@ -32,20 +32,10 @@ export const useAddressResource = () => {
     method: "POST",
   });
 
-  // const getHistoryApi = useApi<any>({
-  //   url: "/api/addresses/history",
-  //   method: "GET",
-  // });
-
   const getPersonAdressApi = useApi<AddressDTO[]>({
     url: "/api/addresses/persons",
     method: "GET",
   });
-
-  // const getHistoryApi = useApi<any>({
-  //   url: "/api/addresses/persons/history",
-  //   method: "GET",
-  // });
 
   const getCardApi = useApi<any>({
     url: "/api/addresses/persons/card",
@@ -59,9 +49,7 @@ export const useAddressResource = () => {
     patchAddresseApi,
     getAddressesApi,
     postAddressesApi,
-    // getHistoryApi,
     getPersonAdressApi,
-    // getHistoryApi,
     getCardApi,
   };
 };

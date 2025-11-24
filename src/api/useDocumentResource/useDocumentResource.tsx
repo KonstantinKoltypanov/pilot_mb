@@ -32,20 +32,10 @@ export const useDocumentResource = () => {
     method: "POST",
   });
 
-  // const getHistoryApi = useApi<any>({
-  //   url: "/api/documents/history",
-  //   method: "GET",
-  // });
-
   const getPersonDocumentApi = useApi<DocumentDTO>({
     url: "/api/documents/persons",
     method: "GET",
   });
-
-  // const getHistoryApi = useApi<any>({
-  //   url: "/api/documents/persons/history",
-  //   method: "GET",
-  // });
 
   const getCardApi = useApi<any>({
     url: "/api/documents/persons/card",
@@ -59,9 +49,7 @@ export const useDocumentResource = () => {
     patchDocumentApi,
     getDocumentsApi,
     postDocumentsApi,
-    // getHistoryApi,
     getPersonDocumentApi,
-    // getHistoryApi,
     getCardApi,
   };
 };

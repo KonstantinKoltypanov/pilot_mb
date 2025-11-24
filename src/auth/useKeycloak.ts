@@ -8,14 +8,24 @@ interface KeycloakState {
   initialized: boolean;
 }
 
-// Глобальный флаг для отслеживания инициализации
 let isKeycloakInitialized = false;
+let keycloakInitPromise: Promise<boolean> | null = null;
 
 export const useKeycloak = () => {
-  const [keycloakState, setKeycloakState] = useState<KeycloakState>({
-    isAuthenticated: false,
-    token: undefined,
-    initialized: false,
+  const [keycloakState, setKeycloakState] = useState<KeycloakState>(() => {
+    // Быстрая проверка: если Keycloak уже инициализирован, сразу возвращаем состояние
+    if (isKeycloakInitialized && keycloak.authenticated !== undefined) {
+      return {
+        isAuthenticated: keycloak.authenticated || false,
+        token: keycloak.token,
+        initialized: true,
+      };
+    }
+    return {
+      isAuthenticated: false,
+      token: undefined,
+      initialized: false,
+    };
   });
   const initAttemptedRef = useRef(false);
   const tokenRefreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
@@ -24,25 +34,45 @@ export const useKeycloak = () => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // Предотвращаем множественную инициализацию
-    if (initAttemptedRef.current || isKeycloakInitialized) {
-      // Если Keycloak уже инициализирован, просто обновляем состояние
-      if (isKeycloakInitialized && keycloak.authenticated !== undefined) {
-        setKeycloakState({
-          isAuthenticated: keycloak.authenticated || false,
-          token: keycloak.token,
-          initialized: true,
+    // Если уже инициализирован, сразу обновляем состояние
+    if (isKeycloakInitialized && keycloak.authenticated !== undefined) {
+      setKeycloakState({
+        isAuthenticated: keycloak.authenticated || false,
+        token: keycloak.token,
+        initialized: true,
+      });
+      return;
+    }
+
+    // Если уже есть промис инициализации, ждем его
+    if (keycloakInitPromise) {
+      keycloakInitPromise
+        .then((authenticated) => {
+          setKeycloakState({
+            isAuthenticated: authenticated,
+            token: keycloak.token,
+            initialized: true,
+          });
+        })
+        .catch(() => {
+          setKeycloakState({
+            isAuthenticated: false,
+            token: undefined,
+            initialized: true,
+          });
         });
-      }
+      return;
+    }
+
+    if (initAttemptedRef.current) {
       return;
     }
 
     initAttemptedRef.current = true;
     let tokenRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
-    // Таймаут для инициализации (10 секунд)
+    // Уменьшаем таймаут до 5 секунд
     timeoutRef.current = setTimeout(() => {
-      // Проверяем, что инициализация еще не завершена
       if (!isKeycloakInitialized) {
         console.warn(
           "Таймаут инициализации Keycloak. Продолжаем работу без авторизации.",
@@ -54,26 +84,23 @@ export const useKeycloak = () => {
           initialized: true,
         });
       }
-    }, 10000);
+    }, 5000);
 
-    // Инициализация Keycloak
-    keycloak
+    // Создаем промис инициализации, чтобы другие хуки могли его использовать
+    keycloakInitPromise = keycloak
       .init({
-        onLoad: "check-sso", // Проверка SSO при загрузке
-        checkLoginIframe: false, // Отключаем проверку через iframe для производительности
-        pkceMethod: "S256", // Используем PKCE для безопасности
-        enableLogging: true, // Включаем логирование для отладки
-        silentCheckSsoRedirectUri:
-          window.location.origin + "/silent-check-sso.html", // Для silent check SSO
+        onLoad: "check-sso",
+        checkLoginIframe: false,
+        pkceMethod: "S256",
+        enableLogging: true,
+        // Убираем silentCheckSsoRedirectUri для ускорения - он вызывает дополнительные запросы
       })
       .then((authenticated) => {
-        // Очищаем таймаут, так как инициализация завершена
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
           timeoutRef.current = null;
         }
 
-        // Устанавливаем флаг ДО обновления состояния, чтобы таймаут не сработал
         isKeycloakInitialized = true;
         console.log(
           "Keycloak инициализирован успешно. Авторизован:",
@@ -85,16 +112,14 @@ export const useKeycloak = () => {
           initialized: true,
         });
 
-        // Обновляем токен перед истечением (каждую минуту)
         if (authenticated) {
-          // Очищаем предыдущий интервал, если он существует
           if (tokenRefreshIntervalRef.current) {
             clearInterval(tokenRefreshIntervalRef.current);
           }
 
           tokenRefreshIntervalRef.current = setInterval(() => {
             keycloak
-              .updateToken(70) // Обновляем токен если осталось меньше 70 секунд
+              .updateToken(70)
               .then((refreshed) => {
                 if (refreshed) {
                   setKeycloakState((prev) => ({
@@ -105,15 +130,15 @@ export const useKeycloak = () => {
               })
               .catch((error) => {
                 console.error("Ошибка обновления токена:", error);
-                // Если не удалось обновить токен, перенаправляем на логин
                 keycloak.login();
               });
-          }, 60000); // Проверяем каждую минуту
+          }, 60000);
           tokenRefreshInterval = tokenRefreshIntervalRef.current;
         }
+
+        return authenticated;
       })
       .catch((error) => {
-        // Очищаем таймаут при ошибке
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
           timeoutRef.current = null;
@@ -125,17 +150,15 @@ export const useKeycloak = () => {
           realm: keycloakConfig.realm || "не указан",
           clientId: keycloakConfig.clientId || "не указан",
         });
-        // Устанавливаем initialized в true, чтобы приложение могло продолжить работу
-        // даже если Keycloak недоступен (для разработки)
         isKeycloakInitialized = true;
         setKeycloakState({
           isAuthenticated: false,
           token: undefined,
           initialized: true,
         });
+        throw error;
       });
 
-    // Обработчик обновления токена
     keycloak.onTokenExpired = () => {
       keycloak
         .updateToken(70)
@@ -153,12 +176,10 @@ export const useKeycloak = () => {
         });
     };
 
-    // Обработчик ошибок авторизации
     keycloak.onAuthError = (error) => {
       console.error("Ошибка авторизации Keycloak:", error);
     };
 
-    // Очистка интервала и таймаута при размонтировании
     return () => {
       if (tokenRefreshIntervalRef.current) {
         clearInterval(tokenRefreshIntervalRef.current);

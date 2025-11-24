@@ -7,11 +7,9 @@ export const KeycloakCallback: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Парсим параметры из URL (Keycloak может использовать как hash, так и query параметры)
     const hash = location.hash;
     const search = location.search;
 
-    // Проверяем наличие ошибки в параметрах
     const urlParams = new URLSearchParams(search);
     const hashParams = hash
       ? new URLSearchParams(hash.substring(1))
@@ -33,30 +31,23 @@ export const KeycloakCallback: React.FC = () => {
     if (error) {
       console.error("Keycloak ошибка:", error, errorDescription);
 
-      // Обрабатываем различные типы ошибок
       if (error === "login_required") {
-        // Пользователь должен войти - очищаем URL и перенаправляем
-        // Keycloak автоматически покажет форму входа при следующей попытке
         window.history.replaceState({}, document.title, "/");
         setTimeout(() => {
           navigate("/persons", { replace: true });
         }, 1000);
       } else {
-        // Другие ошибки - очищаем URL и перенаправляем
         window.history.replaceState({}, document.title, "/");
         setTimeout(() => {
           navigate("/persons", { replace: true });
         }, 1000);
       }
     } else if (code) {
-      // Успешный callback с кодом авторизации - Keycloak обработает его автоматически
-      // Очищаем URL и перенаправляем
       window.history.replaceState({}, document.title, "/");
       setTimeout(() => {
         navigate("/persons", { replace: true });
       }, 500);
     } else {
-      // Если нет ни ошибки, ни кода - просто перенаправляем
       window.history.replaceState({}, document.title, "/");
       setTimeout(() => {
         navigate("/persons", { replace: true });

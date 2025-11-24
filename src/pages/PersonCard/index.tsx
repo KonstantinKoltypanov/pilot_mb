@@ -34,7 +34,6 @@ export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
   const { getOkopfApi, getRoleApi, getCountryApi, getPersonTypeApi } =
     useReferenceResource();
 
-  // Состояние для справочников
   const [references, setReferences] = useState<References>({
     legalForms: [],
     roles: [],
@@ -46,7 +45,6 @@ export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
     fetch({ id });
   }, [id]);
 
-  // Загрузка справочников
   useEffect(() => {
     const loadReferences = async () => {
       try {

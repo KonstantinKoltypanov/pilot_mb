@@ -32,7 +32,6 @@ export const useApi = <T = any>({
       try {
         let requestUrl = url;
 
-        // Если передан id, добавляем его в URL
         if (id !== undefined) {
           requestUrl = `${url}/${id}`;
         }
@@ -88,17 +87,14 @@ export const useApi = <T = any>({
     [url, method],
   );
 
-  // Выполнить запрос сразу при монтировании, если immediate = true или объект с параметрами
   useEffect(() => {
     if (immediate) {
       if (typeof immediate === "boolean") {
         fetch();
       } else {
-        // immediate - это объект с параметрами
         fetch(immediate);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { data, fetch, loading, error };

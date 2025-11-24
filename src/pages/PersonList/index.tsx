@@ -38,17 +38,14 @@ export const PersonList: React.FC = () => {
     showTotal: (total) => `Всего: ${total}`,
   });
 
-  // Проверяем, что мы на правильной странице (не на странице карточки персоны)
   const isPersonListPage = useMemo(() => {
     const path = location.pathname;
-    // Проверяем, что это НЕ страница карточки персоны (/person/:id)
     if (path.startsWith("/person/") && path !== "/persons") {
       return false;
     }
     return path === "/" || path === "/persons" || path.startsWith("/persons");
   }, [location.pathname]);
 
-  // Справочники
   const [personTypes, setPersonTypes] = useState<ReferenceItem[]>([]);
   const [legalForms, setLegalForms] = useState<ReferenceItem[]>([]);
   const [jurisdictions, setJurisdictions] = useState<ReferenceItem[]>([]);
@@ -69,9 +66,7 @@ export const PersonList: React.FC = () => {
     roleSearchType: undefined as string | undefined,
   });
 
-  // Загрузка справочников
   const loadReferences = async () => {
-    // Проверяем, что мы на странице списка перед загрузкой
     const currentPath = location.pathname;
     const isListPage =
       currentPath === "/" ||
@@ -144,13 +139,11 @@ export const PersonList: React.FC = () => {
 
     setLoading(true);
     try {
-      // API использует 0-based индексацию страниц, antd использует 1-based
       const params: Record<string, any> = {
-        page: (pagination.current || 1) - 1, // Конвертируем в 0-based
+        page: (pagination.current || 1) - 1,
         size: pagination.pageSize || 20,
       };
 
-      // Добавляем фильтры только если они заполнены
       if (filters.personTypes.length > 0) {
         params.personTypes = filters.personTypes;
       }
@@ -178,13 +171,11 @@ export const PersonList: React.FC = () => {
 
       const result = await getPeoplesApi.fetch({ params });
 
-      // Предполагаем, что API возвращает объект с данными или массив
       const persons = Array.isArray(result)
         ? result
         : result?.content || result?.data || result?.items || [];
       setData(persons);
 
-      // Обновляем пагинацию, если API возвращает информацию о количестве
       if (result?.totalElements !== undefined) {
         setPagination((prev) => ({
           ...prev,
@@ -206,20 +197,16 @@ export const PersonList: React.FC = () => {
     }
   };
 
-  // Загружаем справочники при монтировании только если мы на странице списка
   useEffect(() => {
     if (isPersonListPage) {
       loadReferences();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPersonListPage]);
 
-  // Загружаем данные при изменении пагинации или фильтров только если мы на странице списка
   useEffect(() => {
     if (isPersonListPage) {
       loadData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.current, pagination.pageSize, isPersonListPage]);
 
   const handleTableChange = (newPagination: TablePaginationConfig) => {
@@ -237,8 +224,6 @@ export const PersonList: React.FC = () => {
   const handleExport = async () => {
     try {
       message.info("Экспорт в Excel...");
-      // Здесь можно добавить вызов API для экспорта
-      // await getXlsxApi.fetch();
     } catch (error: any) {
       message.error(`Ошибка экспорта: ${error.message}`);
     }
@@ -256,7 +241,6 @@ export const PersonList: React.FC = () => {
         backgroundColor: "#FFFFFF",
       }}
     >
-      {/* Заголовок */}
       <div
         style={{
           padding: "16px 24px",
@@ -269,7 +253,6 @@ export const PersonList: React.FC = () => {
         </Title>
       </div>
 
-      {/* Панель инструментов и фильтров */}
       <div
         style={{
           padding: "16px 24px",
@@ -278,7 +261,6 @@ export const PersonList: React.FC = () => {
         }}
       >
         <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-          {/* Кнопки действий */}
           <Space>
             <Button
               icon={<ReloadOutlined />}
@@ -310,9 +292,7 @@ export const PersonList: React.FC = () => {
             </Select>
           </Space>
 
-          {/* Фильтры поиска */}
           <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-            {/* Первая строка фильтров */}
             <Space wrap style={{ width: "100%" }}>
               <Select
                 mode="multiple"
@@ -378,7 +358,6 @@ export const PersonList: React.FC = () => {
               </Select>
             </Space>
 
-            {/* Вторая строка фильтров */}
             <Space wrap style={{ width: "100%" }}>
               <Select
                 placeholder="Режим поиска (Наименование/Идентификация)"
@@ -425,7 +404,6 @@ export const PersonList: React.FC = () => {
               />
             </Space>
 
-            {/* Третья строка фильтров */}
             <Space wrap style={{ width: "100%" }}>
               <Select
                 mode="multiple"

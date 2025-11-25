@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { ContentLayoutBody, ContentLayoutFooter } from "./ContentLayoutHelpers";
-import { Spin, Tabs, Typography } from "antd";
+import { Spin, Tabs, Typography, Button } from "antd";
 import { MainInfoTab } from "../MainInfoTab";
 import { DocumentsTab } from "../DocumentsTab";
 import { AdressContactsTab } from "../AdressContactsTab";
 import { useParams } from "react-router-dom";
 import { usePersonResource } from "../../api/usePersonResource/usePersonResource";
 import { useReferenceResource } from "../../api/useReferenceResource/useReferenceResource";
+import HistoryOutlined from "@ant-design/icons/lib/icons/HistoryOutlined";
 
 interface ReferenceItem {
   mnemocode: string;
@@ -28,7 +29,7 @@ interface ContentLayoutProps {
 export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
   const { id } = useParams();
   const {
-    getPeopleApi: { fetch, data },
+    getPeopleCardApi: { fetch, data },
   } = usePersonResource();
 
   const { getOkopfApi, getRoleApi, getCountryApi, getPersonTypeApi } =
@@ -42,8 +43,10 @@ export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
   });
 
   useEffect(() => {
-    fetch({ id });
-  }, [id]);
+    if (id) {
+      fetch({ id });
+    }
+  }, [id, fetch]);
 
   useEffect(() => {
     const loadReferences = async () => {
@@ -76,11 +79,12 @@ export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
     loadReferences();
   }, [getOkopfApi.fetch, getRoleApi.fetch, getCountryApi.fetch]);
 
-  const fio =
-    data &&
-    data.firstName
-      .concat(" ", data.lastName)
-      .concat(" ", data.middleName ? data.middleName : "");
+  const handleOpenHistory = () => {
+    if (id) {
+      const historyUrl = `/person/${id}/history`;
+      window.open(historyUrl, "_blank", "width=1200,height=800");
+    }
+  };
 
   return (
     <div
@@ -97,31 +101,41 @@ export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
         style={{
           display: "flex",
           alignItems: "center",
+          justifyContent: "space-between",
           padding: "16px 24px",
           borderBottom: "1px solid #f0f0f0",
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
         }}
       >
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          Карточка персоны
-        </Typography.Title>
-        {data?.personType ? (
-          <>
-            <Typography.Title level={3} style={{ margin: 0 }}>
-              (
-              {
-                references.personTypes.find(
-                  (type) => type.mnemocode === data?.personType,
-                )?.nameRu
-              }
-              )
-            </Typography.Title>
-            <Typography.Title level={3} style={{ margin: 0 }}>
-              {fio}
-            </Typography.Title>
-          </>
-        ) : (
-          <Spin />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Typography.Title level={3} style={{ margin: 0 }}>
+            Карточка персоны
+          </Typography.Title>
+          {data ? (
+            <>
+              {data.generalProperties?.legalForm && (
+                <Typography.Title level={3} style={{ margin: 0 }}>
+                  ({data.generalProperties.legalForm})
+                </Typography.Title>
+              )}
+              <Typography.Title level={3} style={{ margin: 0 }}>
+                {data.generalProperties?.firstName || ""}{" "}
+                {data.generalProperties?.lastName || ""}{" "}
+                {data.generalProperties?.middleName || ""}
+              </Typography.Title>
+            </>
+          ) : (
+            <Spin />
+          )}
+        </div>
+        {id && (
+          <Button
+            type="default"
+            icon={<HistoryOutlined />}
+            onClick={handleOpenHistory}
+          >
+            История изменений
+          </Button>
         )}
       </div>
       <ContentLayoutBody>
@@ -151,7 +165,7 @@ export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
       </ContentLayoutBody>
       {!hideFooter && (
         <ContentLayoutFooter>
-          {data ? <Typography.Text>{data.ucdId}</Typography.Text> : null}
+          {data?.id ? <Typography.Text>{data.id}</Typography.Text> : null}
         </ContentLayoutFooter>
       )}
     </div>

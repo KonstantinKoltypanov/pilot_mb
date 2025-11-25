@@ -1,5 +1,5 @@
 import { useApi } from "../../../../hooks/useApi";
-import type { AddressDTO } from "./interfaces";
+import type { AddressCard, AddressDTO, AddressRevision } from "./interfaces";
 
 export const useAddressResource = () => {
   const getAddresseApi = useApi<AddressDTO>({
@@ -32,13 +32,23 @@ export const useAddressResource = () => {
     method: "POST",
   });
 
+  const getAdressCardApi = useApi<AddressCard>({
+    url: "/api/addresses/:id/card",
+    method: "GET",
+  });
+
   const getPersonAdressApi = useApi<AddressDTO[]>({
     url: "/api/addresses/persons",
     method: "GET",
   });
 
-  const getCardApi = useApi<any>({
-    url: "/api/addresses/persons/card",
+  const getPersonAdressCardApi = useApi<any>({
+    url: "/api/addresses/persons/:id/card",
+    method: "GET",
+  });
+
+  const getAddressHistoryApi = useApi<AddressRevision[]>({
+    url: "/api/addresses/:id/history",
     method: "GET",
   });
 
@@ -50,6 +60,8 @@ export const useAddressResource = () => {
     getAddressesApi,
     postAddressesApi,
     getPersonAdressApi,
-    getCardApi,
+    getPersonAdressCardApi,
+    getAdressCardApi,
+    getAddressHistoryApi,
   };
 };

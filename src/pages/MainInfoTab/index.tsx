@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Card, DatePicker, Flex, Form, Input, Select } from "antd";
 import dayjs from "dayjs";
 import { AdditionalParams } from "./components/AdditionalParams";
-import type { PersonDTO } from "../../api/usePersonResource/interfaces";
+import type { PersonCardResponse } from "../../api/usePersonResource/interfaces";
 
 interface ReferenceItem {
   mnemocode: string;
@@ -16,7 +16,7 @@ interface References {
 }
 
 interface ContainerProps {
-  data: PersonDTO | null;
+  data: PersonCardResponse | null;
   references: References;
   children?: React.ReactNode;
 }
@@ -25,10 +25,24 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (data) {
+    if (data?.generalProperties) {
       const formData = {
-        ...data,
-        birthDate: data.birthDate ? dayjs(data.birthDate) : undefined,
+        lastName: data.generalProperties.lastName || "",
+        firstName: data.generalProperties.firstName || "",
+        middleName: data.generalProperties.middleName || "",
+        legalForm: data.generalProperties.legalForm || "",
+        roles: data.generalProperties.roles
+          ? data.generalProperties.roles
+              .split(";")
+              .map((r) => r.trim())
+              .filter(Boolean)
+          : [],
+        lastNameLatin: data.generalProperties.lastNameLatin || "",
+        firstNameLatin: data.generalProperties.firstNameLatin || "",
+        middleNameLatin: data.generalProperties.middleNameLatin || "",
+        citizenship: data.generalProperties.citizenship || "",
+        citizenshipType: data.generalProperties.citizenshipType || "",
+        code: data.generalProperties.code || "",
       };
       form.setFieldsValue(formData);
     }
@@ -55,27 +69,28 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
               gap={8}
             >
               <Form.Item label="Фамилия" name="lastName" style={{ flex: 1 }}>
-                <Input placeholder="Введите текст..." disabled={false} />
+                <Input placeholder="Введите текст..." readOnly />
               </Form.Item>
               <Form.Item label="Имя" name="firstName" style={{ flex: 1 }}>
-                <Input placeholder="Введите текст..." disabled={false} />
+                <Input placeholder="Введите текст..." readOnly />
               </Form.Item>
               <Form.Item label="Отчество" name="middleName" style={{ flex: 1 }}>
-                <Input placeholder="Введите текст..." disabled={false} />
+                <Input placeholder="Введите текст..." readOnly />
               </Form.Item>
             </Flex>
             <Form.Item
               label="Дата рождения"
               name="birthDate"
               getValueProps={(value) => {
-                if (!value) return { value: undefined };
+                if (!value) return { value: dayjs('12.02.2023').format('DD.MM.YYYY') };
                 if (dayjs.isDayjs(value)) {
                   return { value };
                 }
-                return { value: dayjs(value) };
+                return { value: dayjs(value).format('DD.MM.YYYY') };
               }}
+              
             >
-              <DatePicker style={{ width: "100%" }} disabled={false} />
+              <Input style={{ width: "100%" }} readOnly />
             </Form.Item>
             <Form.Item label="Организационно-правовая форма" name="legalForm">
               <Select
@@ -137,21 +152,21 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
                 name="lastNameLatin"
                 style={{ flex: 1 }}
               >
-                <Input placeholder="Введите текст..." disabled={false} />
+                <Input placeholder="Введите текст..." readOnly />
               </Form.Item>
               <Form.Item
                 label="Имя (на латинице)"
                 name="firstNameLatin"
                 style={{ flex: 1 }}
               >
-                <Input placeholder="Введите текст..." disabled={false} />
+                <Input placeholder="Введите текст..." readOnly />
               </Form.Item>
               <Form.Item
                 label="Отчество (на латинице)"
                 name="middleNameLatin"
                 style={{ flex: 1 }}
               >
-                <Input placeholder="Введите текст..." disabled={false} />
+                <Input placeholder="Введите текст..." readOnly />
               </Form.Item>
             </Flex>
             <Flex
@@ -196,10 +211,10 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
                 name="residencyType"
                 style={{ flex: 1 }}
               >
-                <Input placeholder="Введите текст..." disabled={false} />
+                <Input placeholder="Введите текст..." readOnly />
               </Form.Item>
               <Form.Item label="Код" name="code" style={{ flex: 1 }}>
-                <Input placeholder="Введите текст..." disabled={false} />
+                <Input placeholder="Введите текст..." readOnly />
               </Form.Item>
             </Flex>
           </Form>

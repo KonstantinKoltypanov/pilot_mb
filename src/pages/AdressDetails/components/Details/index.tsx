@@ -1,16 +1,16 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { Table } from "antd";
 import type { TablePaginationConfig } from "antd/es/table";
 import { colDefs } from "./colDefs";
 import type { AddressDetailDTO } from "../../api/useAddressDetailResource/interfaces";
 
 interface DetailsTableProps {
-  data?: AddressDetailDTO[]
+  value?: AddressDetailDTO[]
 }
 
-export const DetailsTable: React.FC<DetailsTableProps> = ({ data }) => {
+export const DetailsTable: React.FC<DetailsTableProps> = ({ value: data }) => {
 
-  const scrollY = useMemo(() => ({ y: 360 }), []);
+  console.log(data)
 
   const paginationConfig: false | TablePaginationConfig | undefined = false;
 
@@ -21,8 +21,6 @@ export const DetailsTable: React.FC<DetailsTableProps> = ({ data }) => {
       columns={colDefs}
       dataSource={data || []}
       pagination={paginationConfig}
-      scroll={scrollY}
-      expandable={undefined}
       onRow={() => ({ style: { height: 48 } })}
     />
   );

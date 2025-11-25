@@ -1,23 +1,23 @@
 import React, { useEffect } from "react";
 import { ContentLayoutBody, ContentLayoutFooter } from "./ContentLayoutHelpers";
-import { Flex, Form, Input, Typography } from "antd";
+import { Flex, Form, Input, Typography, Button } from "antd";
 import { DetailsTable } from "./components/Details";
-import { useAddressDetailResource } from "./api/useAddressDetailResource/useAddressDetailResource";
 import { useParams } from "react-router-dom";
+import { useAddressResource } from "../AdressContactsTab/api/useAddressResource/useAddressResource";
+import HistoryOutlined from "@ant-design/icons/lib/icons/HistoryOutlined";
 
 interface ContentLayoutProps {
-  title?: string;
-  hideFooter?: boolean;
   children?: React.ReactNode;
 }
 
-export const AdressDetails: React.FC<ContentLayoutProps> = (props) => {
+export const AdressDetails: React.FC<ContentLayoutProps> = () => {
   const { id } = useParams();
   const [form] = Form.useForm();
 
   const {
-    getAddressDetailApi: { fetch, data, loading },
-  } = useAddressDetailResource();
+    getAdressCardApi: { fetch, data, loading },
+  } = useAddressResource();
+
   useEffect(() => {
     if (!id) return;
     fetch({ id });
@@ -26,7 +26,13 @@ export const AdressDetails: React.FC<ContentLayoutProps> = (props) => {
   useEffect(() => {
     data && form.setFieldsValue(data);
   }, [form, data]);
-  const { title = "Заголовок", hideFooter = false } = props || {};
+
+  const handleOpenHistory = () => {
+    if (id) {
+      const historyUrl = `/address/${id}/history`;
+      window.open(historyUrl, "_blank", "width=1200,height=800");
+    }
+  };
 
   return (
     <div
@@ -44,11 +50,23 @@ export const AdressDetails: React.FC<ContentLayoutProps> = (props) => {
           padding: "16px 24px",
           borderBottom: "1px solid #f0f0f0",
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
         <Typography.Title level={3} style={{ margin: 0 }}>
-          {title}
+          {data?.cardName || ""}
         </Typography.Title>
+        {id && (
+          <Button
+            type="default"
+            icon={<HistoryOutlined />}
+            onClick={handleOpenHistory}
+          >
+            История изменений
+          </Button>
+        )}
       </div>
       <ContentLayoutBody>
         <Form form={form} layout="horizontal" disabled={loading}>
@@ -60,20 +78,20 @@ export const AdressDetails: React.FC<ContentLayoutProps> = (props) => {
             gap={8}
           >
             <Form.Item label="Тип адреса" name="addressType">
-              <Input placeholder="Введите текст..." value="" disabled={false} />
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
             <Form.Item label="Формат" name="format">
-              <Input placeholder="Введите текст..." value="" disabled={false} />
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
           </Flex>
-          <Form.Item label="Label">
-            <Input placeholder="Введите текст..." value="" disabled={false} />
+          <Form.Item name="detailingMethod" label="Метод детализации">
+            <Input placeholder="Введите текст..." readOnly />
           </Form.Item>
-          <Form.Item label="Адрес (РУС)" name="country">
-            <Input placeholder="Введите текст..." value="" disabled={false} />
+          <Form.Item label="Адрес (РУС)" name="addressRu">
+            <Input placeholder="Введите текст..." readOnly />
           </Form.Item>
-          <Form.Item label="Адрес (END)" name="country">
-            <Input placeholder="Введите текст..." value="" disabled={false} />
+          <Form.Item label="Адрес (END)" name="addressEng">
+            <Input placeholder="Введите текст..." readOnly />
           </Form.Item>
           <Flex
             vertical={false}
@@ -82,27 +100,25 @@ export const AdressDetails: React.FC<ContentLayoutProps> = (props) => {
             align="flex-start"
             gap={8}
           >
-            <Form.Item label="Страна (РУС)" name="country">
-              <Input placeholder="Введите текст..." value="" disabled={false} />
+            <Form.Item label="Страна (РУС)" name="countryRu">
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
-            <Form.Item label="Страна (ENG)" name="country">
-              <Input placeholder="Введите текст..." value="" disabled={false} />
+            <Form.Item label="Страна (ENG)" name="countryEng">
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
           </Flex>
           <Form.Item label="Индекс" name="postalCode">
-            <Input placeholder="Введите текст..." value="" disabled={false} />
+            <Input placeholder="Введите текст..." readOnly />
           </Form.Item>
           <Form.Item label="Прочее" name="other">
-            <Input
-              placeholder="Введите текст..."
-              value="other"
-              disabled={false}
-            />
+            <Input placeholder="Введите текст..." value="other" readOnly />
+          </Form.Item>
+          <Form.Item name="details">
+            <DetailsTable />
           </Form.Item>
         </Form>
-        <DetailsTable />
       </ContentLayoutBody>
-      {!hideFooter && <ContentLayoutFooter></ContentLayoutFooter>}
+      <ContentLayoutFooter>{data?.personId}</ContentLayoutFooter>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import type { DocumentDTO } from "./interfaces";
+import type { DocumentCard, DocumentDTO, DocumentRevision } from "./interfaces";
 import { useApi } from "../../hooks/useApi";
 
 export const useDocumentResource = () => {
@@ -36,9 +36,17 @@ export const useDocumentResource = () => {
     url: "/api/documents/persons",
     method: "GET",
   });
+  const getDocumentCardApi = useApi<DocumentCard>({
+    url: "/api/documents/:id/card",
+    method: "GET",
+  });
+  const getDocumentsCardApi = useApi<any>({
+    url: "/api/documents/persons/:id/card",
+    method: "GET",
+  });
 
-  const getCardApi = useApi<any>({
-    url: "/api/documents/persons/card",
+  const getDocumentHistoryApi = useApi<DocumentRevision[]>({
+    url: "/api/documents/:id/history",
     method: "GET",
   });
 
@@ -50,6 +58,8 @@ export const useDocumentResource = () => {
     getDocumentsApi,
     postDocumentsApi,
     getPersonDocumentApi,
-    getCardApi,
+    getDocumentsCardApi,
+    getDocumentCardApi,
+    getDocumentHistoryApi,
   };
 };

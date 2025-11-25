@@ -7,6 +7,7 @@ import { useReferenceResource } from "../../api/useReferenceResource/useReferenc
 import type { PersonDTO } from "../../api/usePersonResource/interfaces";
 import { ReloadOutlined, ExportOutlined } from "@ant-design/icons";
 import { columns } from "./colDefs";
+import axiosInstance from "../../api/axios";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -97,28 +98,28 @@ export const PersonList: React.FC = () => {
       setPersonTypes(
         Array.isArray(personTypesData)
           ? personTypesData
-          : personTypesData?.data || [],
+          : personTypesData?.data || []
       );
       setLegalForms(
         Array.isArray(legalFormsData)
           ? legalFormsData
-          : legalFormsData?.data || [],
+          : legalFormsData?.data || []
       );
       setJurisdictions(
         Array.isArray(jurisdictionsData)
           ? jurisdictionsData
-          : jurisdictionsData?.data || [],
+          : jurisdictionsData?.data || []
       );
       setRoles(Array.isArray(rolesData) ? rolesData : rolesData?.data || []);
       setNameAndIdentitySearchTypes(
         Array.isArray(nameAndIdentitySearchTypesData)
           ? nameAndIdentitySearchTypesData
-          : nameAndIdentitySearchTypesData?.data || [],
+          : nameAndIdentitySearchTypesData?.data || []
       );
       setRoleSearchTypes(
         Array.isArray(roleSearchTypesData)
           ? roleSearchTypesData
-          : roleSearchTypesData?.data || [],
+          : roleSearchTypesData?.data || []
       );
     } catch (error: any) {
       console.error("Ошибка загрузки справочников:", error);
@@ -126,7 +127,6 @@ export const PersonList: React.FC = () => {
   };
 
   const loadData = async () => {
-    // Проверяем, что мы на странице списка перед загрузкой
     const currentPath = location.pathname;
     const isListPage =
       currentPath === "/" ||
@@ -189,7 +189,7 @@ export const PersonList: React.FC = () => {
       }
     } catch (error: any) {
       message.error(
-        `Ошибка загрузки данных: ${error.message || "Неизвестная ошибка"}`,
+        `Ошибка загрузки данных: ${error.message || "Неизвестная ошибка"}`
       );
       console.error("Ошибка загрузки персон:", error);
     } finally {
@@ -223,9 +223,55 @@ export const PersonList: React.FC = () => {
 
   const handleExport = async () => {
     try {
-      message.info("Экспорт в Excel...");
+      message.loading({ content: "Экспорт в Excel...", key: "export" });
+      
+      const params: Record<string, any> = {};
+      
+      if (filters.personTypes.length > 0) {
+        params.personTypes = filters.personTypes;
+      }
+      if (filters.legalForms.length > 0) {
+        params.legalForms = filters.legalForms;
+      }
+      if (filters.jurisdictions.length > 0) {
+        params.jurisdictions = filters.jurisdictions;
+      }
+      if (filters.nameAndIdentitySearchType) {
+        params.nameAndIdentitySearchType = filters.nameAndIdentitySearchType;
+      }
+      if (filters.name) {
+        params.name = filters.name;
+      }
+      if (filters.identity) {
+        params.identity = filters.identity;
+      }
+      if (filters.roles.length > 0) {
+        params.roles = filters.roles;
+      }
+      if (filters.roleSearchType) {
+        params.roleSearchType = filters.roleSearchType;
+      }
+
+      const response = await axiosInstance.get("/api/people/xlsx", {
+        params,
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `persons_${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      message.success({ content: "Экспорт завершен", key: "export" });
     } catch (error: any) {
-      message.error(`Ошибка экспорта: ${error.message}`);
+      message.error({ content: `Ошибка экспорта: ${error.message}`, key: "export" });
     }
   };
 
@@ -458,7 +504,7 @@ export const PersonList: React.FC = () => {
           onChange={handleTableChange}
           size="middle"
           bordered
-          scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
+          scroll={{ x: "max-content" }}
           rowKey="id"
           onRow={(record) => ({
             onDoubleClick: () => {

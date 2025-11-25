@@ -1,5 +1,5 @@
 import { useApi } from "../../hooks/useApi";
-import type { PersonDTO } from "./interfaces";
+import type { PersonDTO, PersonCardResponse, PersonRevision } from "./interfaces";
 
 export const usePersonResource = () => {
   const getPeopleApi = useApi<PersonDTO>({
@@ -37,8 +37,8 @@ export const usePersonResource = () => {
     method: "GET",
   });
 
-  const getCardApi = useApi<any>({
-    url: "/api/people/card",
+  const getPeopleCardApi = useApi<PersonCardResponse>({
+    url: "/api/people/:id/card",
     method: "GET",
   });
 
@@ -52,6 +52,11 @@ export const usePersonResource = () => {
     method: "GET",
   });
 
+  const getPersonHistoryApi = useApi<PersonRevision[]>({
+    url: "/api/people/:id/history",
+    method: "GET",
+  });
+
   return {
     getPeopleApi,
     putPeopleApi,
@@ -60,8 +65,9 @@ export const usePersonResource = () => {
     getPeoplesApi,
     postPeopleApi,
     getHistoryPeopleApi,
-    getCardApi,
+    getPeopleCardApi,
     getXlsxApi,
     getHistoryPeoplesApi,
+    getPersonHistoryApi,
   };
 };

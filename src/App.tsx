@@ -8,6 +8,9 @@ import { PersonCard } from "./pages/PersonCard";
 import { PersonList } from "./pages/PersonList";
 import { DocumentCard } from "./pages/DocumentCard";
 import { AdressDetails } from "./pages/AdressDetails";
+import { DocumentHistory } from "./pages/DocumentHistory";
+import { AddressHistory } from "./pages/AddressHistory";
+import { PersonHistory } from "./pages/PersonHistory";
 import { KeycloakHandler } from "./components/KeycloakHandler";
 import "./App.css";
 
@@ -54,8 +57,11 @@ function AppContent() {
       <KeycloakHandler />
       <Routes>
         <Route path="/person/:id" element={<PersonCard />} />
+        <Route path="/person/:id/history" element={<PersonHistory />} />
         <Route path="/document/:id" element={<DocumentCard />} />
+        <Route path="/document/:id/history" element={<DocumentHistory />} />
         <Route path="/address/:id" element={<AdressDetails />} />
+        <Route path="/address/:id/history" element={<AddressHistory />} />
         <Route path="/persons" element={<PersonList />} />
         <Route path="/" element={<PersonList />} />
         <Route

@@ -5,7 +5,7 @@ import type { AxiosRequestConfig } from "axios";
 interface UseApiOptions {
   url: string;
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  immediate?: boolean | FetchParams; // Выполнить запрос сразу при монтировании (можно передать параметры)
+  immediate?: boolean | FetchParams;
 }
 
 interface FetchParams {
@@ -32,7 +32,13 @@ export const useApi = <T = any>({
       try {
         let requestUrl = url;
 
-        if (id !== undefined) {
+        if (url.includes(":id")) {
+          if (id === undefined || id === null) {
+            throw new Error("ID is required for this endpoint");
+          }
+          requestUrl = url.replace(":id", String(id));
+          console.log('da')
+        } else if (id !== undefined) {
           requestUrl = `${url}/${id}`;
         }
 

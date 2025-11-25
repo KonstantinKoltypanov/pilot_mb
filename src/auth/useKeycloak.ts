@@ -13,7 +13,6 @@ let keycloakInitPromise: Promise<boolean> | null = null;
 
 export const useKeycloak = () => {
   const [keycloakState, setKeycloakState] = useState<KeycloakState>(() => {
-    // Быстрая проверка: если Keycloak уже инициализирован, сразу возвращаем состояние
     if (isKeycloakInitialized && keycloak.authenticated !== undefined) {
       return {
         isAuthenticated: keycloak.authenticated || false,
@@ -34,7 +33,6 @@ export const useKeycloak = () => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // Если уже инициализирован, сразу обновляем состояние
     if (isKeycloakInitialized && keycloak.authenticated !== undefined) {
       setKeycloakState({
         isAuthenticated: keycloak.authenticated || false,
@@ -44,7 +42,6 @@ export const useKeycloak = () => {
       return;
     }
 
-    // Если уже есть промис инициализации, ждем его
     if (keycloakInitPromise) {
       keycloakInitPromise
         .then((authenticated) => {
@@ -71,7 +68,6 @@ export const useKeycloak = () => {
     initAttemptedRef.current = true;
     let tokenRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
-    // Уменьшаем таймаут до 5 секунд
     timeoutRef.current = setTimeout(() => {
       if (!isKeycloakInitialized) {
         console.warn(
@@ -86,14 +82,12 @@ export const useKeycloak = () => {
       }
     }, 5000);
 
-    // Создаем промис инициализации, чтобы другие хуки могли его использовать
     keycloakInitPromise = keycloak
       .init({
         onLoad: "check-sso",
         checkLoginIframe: false,
         pkceMethod: "S256",
         enableLogging: true,
-        // Убираем silentCheckSsoRedirectUri для ускорения - он вызывает дополнительные запросы
       })
       .then((authenticated) => {
         if (timeoutRef.current) {

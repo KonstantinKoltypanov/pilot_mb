@@ -9,11 +9,13 @@ import {
   Spin,
   notification,
   DatePicker,
+  Button,
 } from "antd";
 import { PeriodTable } from "./components/PeriodTable";
 import { useDocumentResource } from "../../api/useDocumentResource/useDocumentResource";
 import CheckCircleOutlined from "@ant-design/icons/lib/icons/CheckCircleOutlined";
 import SyncOutlined from "@ant-design/icons/lib/icons/SyncOutlined";
+import HistoryOutlined from "@ant-design/icons/lib/icons/HistoryOutlined";
 import dayjs from "dayjs";
 
 interface ContentLayoutProps {
@@ -27,8 +29,7 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
   const [form] = Form.useForm();
 
   const {
-    getDocumentApi: { fetch, data, loading },
-    patchDocumentApi: { fetch: save, loading: savedLoading },
+    getDocumentCardApi: { fetch, data, loading },
   } = useDocumentResource();
 
   useEffect(() => {
@@ -48,14 +49,14 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
   const handleRefresh = () => {
     fetch({ id });
   };
-  const handleSave = async () => {
-    try {
-      await save({ id, body: form.getFieldsValue() });
-      notification.success({ message: "Успешно сохранено" });
-    } catch {
-      notification.error({ message: "Не удалось сохранить" });
+
+  const handleOpenHistory = () => {
+    if (id) {
+      const historyUrl = `/document/${id}/history`;
+      window.open(historyUrl, "_blank", "width=1200,height=800");
     }
   };
+
 
   if (loading) {
     return (
@@ -89,17 +90,33 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
           padding: "16px 24px",
           borderBottom: "1px solid #f0f0f0",
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
         <Typography.Title level={3} style={{ margin: 0 }}>
-          {title}
+          {data?.cardName && (
+              <Typography.Title level={3} style={{ margin: 0 }}>
+                {data?.cardName}
+              </Typography.Title>
+            )}
         </Typography.Title>
+        {id && (
+          <Button
+            type="default"
+            icon={<HistoryOutlined />}
+            onClick={handleOpenHistory}
+          >
+            История изменений
+          </Button>
+        )}
       </div>
       <ContentLayoutBody>
         <Form form={form} layout="horizontal">
           <Form.Item noStyle name="id"></Form.Item>
           <Form.Item label="Тип документа" name="documentType">
-            <Input placeholder="Введите текст..." disabled={false} />
+            <Input placeholder="Введите текст..." readOnly />
           </Form.Item>
           <Flex
             vertical={false}
@@ -109,14 +126,14 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             gap={8}
           >
             <Form.Item label="Серия" name="series">
-              <Input placeholder="Введите текст..." disabled={false} />
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
             <Form.Item label="Номер" name="number">
-              <Input placeholder="Введите текст..." disabled={false} />
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
           </Flex>
           <Form.Item label="Кем выдан" name="issuingAuthority">
-            <Input placeholder="Введите текст..." disabled={false} />
+            <Input placeholder="Введите текст..." readOnly />
           </Form.Item>
           <Flex
             vertical={false}
@@ -126,10 +143,10 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             gap={8}
           >
             <Form.Item label="Код подразделения" name="departmentCode">
-              <Input placeholder="Введите текст..." disabled={false} />
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
             <Form.Item label="Пол" name="gender">
-              <Input placeholder="Введите текст..." disabled={false} />
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
           </Flex>
           <Flex
@@ -140,10 +157,10 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             gap={8}
           >
             <Form.Item label="Страна рождения" name="birthCountry">
-              <Input placeholder="Введите текст..." disabled={false} />
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
             <Form.Item label="Место рождения" name="birthPlace">
-              <Input placeholder="Введите текст..." disabled={false} />
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
           </Flex>
           <Flex
@@ -157,27 +174,27 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
               label="Дата выдачи"
               name="issueDate"
               getValueProps={(value) => {
-                if (!value) return { value: undefined };
+                if (!value)return { value: dayjs('12.02.2023').format('DD.MM.YYYY') };
                 if (dayjs.isDayjs(value)) {
                   return { value };
                 }
-                return { value: dayjs(value) };
+                  return { value: dayjs(value).format('DD.MM.YYYY') };
               }}
             >
-              <DatePicker style={{ width: "100%" }} disabled={false} />
+               <Input readOnly />
             </Form.Item>
             <Form.Item
               label="Дата окончания"
               name="expirationDate"
               getValueProps={(value) => {
-                if (!value) return { value: undefined };
+                if (!value)return { value: dayjs('12.02.2023').format('DD.MM.YYYY') };
                 if (dayjs.isDayjs(value)) {
                   return { value };
                 }
-                return { value: dayjs(value) };
+                  return { value: dayjs(value).format('DD.MM.YYYY') };
               }}
             >
-              <DatePicker style={{ width: "100%" }} disabled={false} />
+               <Input readOnly />
             </Form.Item>
           </Flex>
           <Flex
@@ -188,20 +205,20 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             gap={8}
           >
             <Form.Item label="Статус документа" name="documentStatus">
-              <Input placeholder="Введите текст..." disabled={false} />
+              <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
              <Form.Item
               label="Дата отмены"
               name="cancellationDate"
               getValueProps={(value) => {
-                if (!value) return { value: undefined };
+                if (!value)return { value: dayjs('12.02.2023').format('DD.MM.YYYY') };
                 if (dayjs.isDayjs(value)) {
                   return { value };
                 }
-                return { value: dayjs(value) };
+                  return { value: dayjs(value).format('DD.MM.YYYY') };
               }}
             >
-              <DatePicker style={{ width: "100%" }} disabled={false} />
+               <Input readOnly />
             </Form.Item>
           </Flex>
           <Flex
@@ -216,14 +233,9 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
               style={{ fontSize: 24, color: "blue" }}
               onClick={handleRefresh}
             />
-            <CheckCircleOutlined
-            spin={savedLoading}
-              style={{ fontSize: 24, color: "green" }}
-              onClick={handleSave}
-            />
           </Flex>
           <Form.Item label="Комментарий" name="comment">
-            <Input placeholder="Введите текст..." disabled={false} />
+            <Input placeholder="Введите текст..." readOnly />
           </Form.Item>
         </Form>
 
@@ -234,7 +246,7 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
       </ContentLayoutBody>
       {!hideFooter && (
         <ContentLayoutFooter>
-          {data ? <Typography.Text>{data.person?.id}</Typography.Text> : null}
+          {data ? <Typography.Text>{data.personId}</Typography.Text> : null}
         </ContentLayoutFooter>
       )}
     </div>

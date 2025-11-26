@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
-import { Card, DatePicker, Flex, Form, Input, Select } from "antd";
+import { Card, Flex, Form, Input, Select, Space, Tag } from "antd";
 import dayjs from "dayjs";
 import { AdditionalParams } from "./components/AdditionalParams";
 import type { PersonCardResponse } from "../../api/usePersonResource/interfaces";
+
+import "./style.css";
 
 interface ReferenceItem {
   mnemocode: string;
@@ -49,178 +51,167 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
   }, [data, form]);
 
   return (
-    <>
+    <Space
+      direction="vertical"
+      style={{ display: "flex", alignItems: "center" }}
+    >
       <Card title="Основные параметры">
-        <div
-          style={{
-            background: "#ffffff",
-            padding: 10,
-            height: "100%",
-            minHeight: "50px",
-            width: "100%",
-          }}
-        >
-          <Form form={form} layout="vertical" style={{ maxWidth: 700 }}>
-            <Flex
-              vertical={false}
-              wrap="nowrap"
-              justify="flex-start"
-              align="flex-start"
-              gap={8}
-            >
-              <Form.Item label="Фамилия" name="lastName" style={{ flex: 1 }}>
-                <Input placeholder="Введите текст..." readOnly />
-              </Form.Item>
-              <Form.Item label="Имя" name="firstName" style={{ flex: 1 }}>
-                <Input placeholder="Введите текст..." readOnly />
-              </Form.Item>
-              <Form.Item label="Отчество" name="middleName" style={{ flex: 1 }}>
-                <Input placeholder="Введите текст..." readOnly />
-              </Form.Item>
-            </Flex>
-            <Form.Item
-              label="Дата рождения"
-              name="birthDate"
-              getValueProps={(value) => {
-                if (!value) return { value: dayjs('12.02.2023').format('DD.MM.YYYY') };
-                if (dayjs.isDayjs(value)) {
-                  return { value };
-                }
-                return { value: dayjs(value).format('DD.MM.YYYY') };
+        <Form form={form} layout="vertical" style={{ maxWidth: 700 }}>
+          <Flex
+            vertical={false}
+            wrap="nowrap"
+            justify="flex-start"
+            align="flex-start"
+            gap={8}
+          >
+            <Form.Item label="Фамилия" name="lastName" style={{ flex: 1 }}>
+              <Input placeholder="Введите текст..." readOnly />
+            </Form.Item>
+            <Form.Item label="Имя" name="firstName" style={{ flex: 1 }}>
+              <Input placeholder="Введите текст..." readOnly />
+            </Form.Item>
+            <Form.Item label="Отчество" name="middleName" style={{ flex: 1 }}>
+              <Input placeholder="Введите текст..." readOnly />
+            </Form.Item>
+          </Flex>
+          <Form.Item
+            label="Дата рождения"
+            name="birthDate"
+            getValueProps={(value) => {
+              if (!value)
+                return { value: dayjs("12.02.2023").format("DD.MM.YYYY") };
+              if (dayjs.isDayjs(value)) {
+                return { value };
+              }
+              return { value: dayjs(value).format("DD.MM.YYYY") };
+            }}
+          >
+            <Input style={{ width: "100%" }} readOnly />
+          </Form.Item>
+          <Form.Item label="Организационно-правовая форма" name="legalForm">
+            <Select
+              placeholder="Выберите ОПФ..."
+              allowClear
+              showSearch
+              filterOption={(input, option) => {
+                const label =
+                  typeof option?.label === "string"
+                    ? option.label
+                    : String(option?.children || "");
+                return label.toLowerCase().includes(input.toLowerCase());
               }}
-              
             >
-              <Input style={{ width: "100%" }} readOnly />
+              {references.legalForms.map((item) => {
+                if (!item.mnemocode) return null;
+                return (
+                  <Select.Option key={item.mnemocode} value={item.mnemocode}>
+                    {item.nameRu || item.mnemocode}
+                  </Select.Option>
+                );
+              })}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Роли" name="roles">
+            <Form.Item
+              noStyle
+              shouldUpdate={(prevValues, currentValues) =>
+                prevValues?.roles !== currentValues?.roles
+              }
+            >
+              {({ getFieldValue }) => {
+                const roles = getFieldValue("roles") || [];
+                return (
+                  <Space wrap>
+                    {roles.map((roleCode: string) => {
+                      const roleItem = references.roles.find(
+                        (item) => item.mnemocode === roleCode,
+                      );
+                      const roleName = roleItem?.nameRu || roleCode;
+                      return <Tag key={roleCode}>{roleName}</Tag>;
+                    })}
+                  </Space>
+                );
+              }}
             </Form.Item>
-            <Form.Item label="Организационно-правовая форма" name="legalForm">
-              <Select
-                placeholder="Выберите ОПФ..."
-                allowClear
-                showSearch
-                filterOption={(input, option) => {
-                  const label =
-                    typeof option?.label === "string"
-                      ? option.label
-                      : String(option?.children || "");
-                  return label.toLowerCase().includes(input.toLowerCase());
-                }}
+          </Form.Item>
+          <Flex
+            vertical={false}
+            wrap="nowrap"
+            justify="flex-start"
+            align="flex-start"
+            gap={8}
+          >
+            <Form.Item
+              label="Фамилия (на латинице)"
+              name="lastNameLatin"
+              style={{ flex: 1 }}
+            >
+              <Input placeholder="Введите текст..." readOnly />
+            </Form.Item>
+            <Form.Item
+              label="Имя (на латинице)"
+              name="firstNameLatin"
+              style={{ flex: 1 }}
+            >
+              <Input placeholder="Введите текст..." readOnly />
+            </Form.Item>
+            <Form.Item
+              label="Отчество (на латинице)"
+              name="middleNameLatin"
+              style={{ flex: 1 }}
+            >
+              <Input placeholder="Введите текст..." readOnly />
+            </Form.Item>
+          </Flex>
+          <Flex
+            vertical={false}
+            wrap="nowrap"
+            justify="flex-start"
+            align="flex-start"
+            gap={8}
+          >
+            <Form.Item
+              label="Гражданство"
+              name="citizenship"
+              style={{ flex: 1 }}
+            >
+              <Form.Item
+                noStyle
+                shouldUpdate={(prevValues, currentValues) =>
+                  prevValues?.citizenship !== currentValues?.citizenship
+                }
               >
-                {references.legalForms.map((item) => {
-                  if (!item.mnemocode) return null;
+                {({ getFieldValue }) => {
+                  const citizenshipCode = getFieldValue("citizenship");
+                  const citizenshipName = citizenshipCode
+                    ? references.countries.find(
+                        (item) => item.mnemocode === citizenshipCode,
+                      )?.nameRu || citizenshipCode
+                    : "";
                   return (
-                    <Select.Option key={item.mnemocode} value={item.mnemocode}>
-                      {item.nameRu || item.mnemocode}
-                    </Select.Option>
+                    <Input
+                      placeholder="Гражданство не указано"
+                      readOnly
+                      value={citizenshipName}
+                    />
                   );
-                })}
-              </Select>
-            </Form.Item>
-            <Form.Item label="Роли" name="roles">
-              <Select
-                mode="multiple"
-                placeholder="Выберите роли..."
-                allowClear
-                showSearch
-                filterOption={(input, option) => {
-                  const label =
-                    typeof option?.label === "string"
-                      ? option.label
-                      : String(option?.children || "");
-                  return label.toLowerCase().includes(input.toLowerCase());
                 }}
-                maxTagCount="responsive"
-              >
-                {references.roles.map((item) => {
-                  if (!item.mnemocode) return null;
-                  return (
-                    <Select.Option key={item.mnemocode} value={item.mnemocode}>
-                      {item.nameRu || item.mnemocode}
-                    </Select.Option>
-                  );
-                })}
-              </Select>
+              </Form.Item>
             </Form.Item>
-            <Flex
-              vertical={false}
-              wrap="nowrap"
-              justify="flex-start"
-              align="flex-start"
-              gap={8}
+            <Form.Item
+              label="Тип гражданства"
+              name="residencyType"
+              style={{ flex: 1 }}
             >
-              <Form.Item
-                label="Фамилия (на латинице)"
-                name="lastNameLatin"
-                style={{ flex: 1 }}
-              >
-                <Input placeholder="Введите текст..." readOnly />
-              </Form.Item>
-              <Form.Item
-                label="Имя (на латинице)"
-                name="firstNameLatin"
-                style={{ flex: 1 }}
-              >
-                <Input placeholder="Введите текст..." readOnly />
-              </Form.Item>
-              <Form.Item
-                label="Отчество (на латинице)"
-                name="middleNameLatin"
-                style={{ flex: 1 }}
-              >
-                <Input placeholder="Введите текст..." readOnly />
-              </Form.Item>
-            </Flex>
-            <Flex
-              vertical={false}
-              wrap="nowrap"
-              justify="flex-start"
-              align="flex-start"
-              gap={8}
-            >
-              <Form.Item
-                label="Гражданство"
-                name="citizenship"
-                style={{ flex: 1 }}
-              >
-                <Select
-                  placeholder="Выберите гражданство..."
-                  allowClear
-                  showSearch
-                  filterOption={(input, option) => {
-                    const label =
-                      typeof option?.label === "string"
-                        ? option.label
-                        : String(option?.children || "");
-                    return label.toLowerCase().includes(input.toLowerCase());
-                  }}
-                >
-                  {references.countries.map((item) => {
-                    if (!item.mnemocode) return null;
-                    return (
-                      <Select.Option
-                        key={item.mnemocode}
-                        value={item.mnemocode}
-                      >
-                        {item.nameRu || item.mnemocode}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Form.Item>
-              <Form.Item
-                label="Тип гражданства"
-                name="residencyType"
-                style={{ flex: 1 }}
-              >
-                <Input placeholder="Введите текст..." readOnly />
-              </Form.Item>
-              <Form.Item label="Код" name="code" style={{ flex: 1 }}>
-                <Input placeholder="Введите текст..." readOnly />
-              </Form.Item>
-            </Flex>
-          </Form>
-        </div>
+              <Input placeholder="Введите текст..." readOnly />
+            </Form.Item>
+            <Form.Item label="Код" name="code" style={{ flex: 1 }}>
+              <Input placeholder="Введите текст..." readOnly />
+            </Form.Item>
+          </Flex>
+        </Form>
       </Card>
-      <Card title="Дополнительные параметры">
+      <Card title="Дополнительные параметры" className="additionalParams_card">
         <div
           style={{
             background: "#ffffff",
@@ -233,6 +224,6 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
           <AdditionalParams data={data} references={references} />
         </div>
       </Card>
-    </>
+    </Space>
   );
 };

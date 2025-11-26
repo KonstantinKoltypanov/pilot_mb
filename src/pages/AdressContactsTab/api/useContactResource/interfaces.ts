@@ -12,3 +12,15 @@ export interface ContactDTO {
   extension?: string;
   person: PersonDTO;
 }
+
+export interface ContactCardDTO {
+  id: string;
+  type: string;
+  email?: string;
+  telephone?: string;
+  countryCode?: string;
+  phoneNumber?: string;
+  extension?: string;
+  comment?: string;
+  organization?: string;
+}

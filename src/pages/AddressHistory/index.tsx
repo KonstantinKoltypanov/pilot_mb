@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { ContentLayoutBody, ContentLayoutFooter } from "../AdressDetails/ContentLayoutHelpers";
+import {
+  ContentLayoutBody,
+  ContentLayoutFooter,
+} from "../AdressDetails/ContentLayoutHelpers";
 import { Table, Typography, Spin } from "antd";
 import type { TablePaginationConfig } from "antd/es/table";
 import { useAddressResource } from "../AdressContactsTab/api/useAddressResource/useAddressResource";
@@ -77,4 +80,3 @@ export const AddressHistory: React.FC = () => {
     </div>
   );
 };
-

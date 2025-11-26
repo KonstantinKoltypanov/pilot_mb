@@ -57,7 +57,6 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
     }
   };
 
-
   if (loading) {
     return (
       <div
@@ -97,10 +96,10 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
       >
         <Typography.Title level={3} style={{ margin: 0 }}>
           {data?.cardName && (
-              <Typography.Title level={3} style={{ margin: 0 }}>
-                {data?.cardName}
-              </Typography.Title>
-            )}
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              {data?.cardName}
+            </Typography.Title>
+          )}
         </Typography.Title>
         {id && (
           <Button
@@ -170,31 +169,33 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             align="flex-start"
             gap={8}
           >
-             <Form.Item
+            <Form.Item
               label="Дата выдачи"
               name="issueDate"
               getValueProps={(value) => {
-                if (!value)return { value: dayjs('12.02.2023').format('DD.MM.YYYY') };
+                if (!value)
+                  return { value: dayjs("12.02.2023").format("DD.MM.YYYY") };
                 if (dayjs.isDayjs(value)) {
                   return { value };
                 }
-                  return { value: dayjs(value).format('DD.MM.YYYY') };
+                return { value: dayjs(value).format("DD.MM.YYYY") };
               }}
             >
-               <Input readOnly />
+              <Input readOnly />
             </Form.Item>
             <Form.Item
               label="Дата окончания"
               name="expirationDate"
               getValueProps={(value) => {
-                if (!value)return { value: dayjs('12.02.2023').format('DD.MM.YYYY') };
+                if (!value)
+                  return { value: dayjs("12.02.2023").format("DD.MM.YYYY") };
                 if (dayjs.isDayjs(value)) {
                   return { value };
                 }
-                  return { value: dayjs(value).format('DD.MM.YYYY') };
+                return { value: dayjs(value).format("DD.MM.YYYY") };
               }}
             >
-               <Input readOnly />
+              <Input readOnly />
             </Form.Item>
           </Flex>
           <Flex
@@ -207,18 +208,19 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             <Form.Item label="Статус документа" name="documentStatus">
               <Input placeholder="Введите текст..." readOnly />
             </Form.Item>
-             <Form.Item
+            <Form.Item
               label="Дата отмены"
               name="cancellationDate"
               getValueProps={(value) => {
-                if (!value)return { value: dayjs('12.02.2023').format('DD.MM.YYYY') };
+                if (!value)
+                  return { value: dayjs("12.02.2023").format("DD.MM.YYYY") };
                 if (dayjs.isDayjs(value)) {
                   return { value };
                 }
-                  return { value: dayjs(value).format('DD.MM.YYYY') };
+                return { value: dayjs(value).format("DD.MM.YYYY") };
               }}
             >
-               <Input readOnly />
+              <Input readOnly />
             </Form.Item>
           </Flex>
           <Flex
@@ -229,7 +231,7 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
             gap={12}
           >
             <SyncOutlined
-            spin={loading}
+              spin={loading}
               style={{ fontSize: 24, color: "blue" }}
               onClick={handleRefresh}
             />

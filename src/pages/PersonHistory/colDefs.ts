@@ -82,7 +82,8 @@ export const colDefs: ColumnsType<PersonRevision> = [
     dataIndex: ["personData", "birthDate"],
     key: "birthDate",
     width: 120,
-    render: (value: string) => (value ? dayjs(value).format("DD.MM.YYYY") : "-"),
+    render: (value: string) =>
+      value ? dayjs(value).format("DD.MM.YYYY") : "-",
   },
   {
     title: "ОПФ",
@@ -103,4 +104,3 @@ export const colDefs: ColumnsType<PersonRevision> = [
     width: 120,
   },
 ];
-

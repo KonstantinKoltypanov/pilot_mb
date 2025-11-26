@@ -16,22 +16,32 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
 }) => {
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
-  const [selectedContact, setSelectedContact] = useState<ContactDTO | undefined>(
-    undefined
-  );
+  const [selectedContact, setSelectedContact] = useState<
+    ContactDTO | undefined
+  >(undefined);
 
   const handleRowDoubleClick = (record: any) => {
-    const fullContactData = data.find((item) => item.id === record.id) || record;
-    
+    const fullContactData =
+      data.find((item) => item.id === record.id) || record;
+
     if (!fullContactData) return;
 
     setSelectedContact(fullContactData);
 
-    const contactType = record.type || fullContactData.contactType || fullContactData.type;
-    
-    if (contactType === "E-mail" || contactType === "Email" || contactType === "e-mail") {
+    const contactType =
+      record.type || fullContactData.contactType || fullContactData.type;
+
+    if (
+      contactType === "E-mail" ||
+      contactType === "Email" ||
+      contactType === "e-mail"
+    ) {
       setEmailModalOpen(true);
-    } else if (contactType === "Телефон" || contactType === "Phone" || contactType === "телефон") {
+    } else if (
+      contactType === "Телефон" ||
+      contactType === "Phone" ||
+      contactType === "телефон"
+    ) {
       setPhoneModalOpen(true);
     }
   };

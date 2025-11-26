@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { ContentLayoutBody, ContentLayoutFooter } from "../PersonCard/ContentLayoutHelpers";
+import {
+  ContentLayoutBody,
+  ContentLayoutFooter,
+} from "../PersonCard/ContentLayoutHelpers";
 import { Table, Typography, Spin } from "antd";
 import type { TablePaginationConfig } from "antd/es/table";
 import { usePersonResource } from "../../api/usePersonResource/usePersonResource";
@@ -77,4 +80,3 @@ export const PersonHistory: React.FC = () => {
     </div>
   );
 };
-

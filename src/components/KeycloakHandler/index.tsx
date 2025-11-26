@@ -21,7 +21,7 @@ export const KeycloakHandler: React.FC = () => {
       (search &&
         (search.includes("error=") ||
           search.includes("code=") ||
-          search.includes("state=")      ));
+          search.includes("state=")));
 
     if (hasKeycloakParams) {
       const urlParams = new URLSearchParams(search);
@@ -46,7 +46,7 @@ export const KeycloakHandler: React.FC = () => {
         if (currentPath !== "/persons") {
           console.log(
             "KeycloakHandler: Пропускаем перенаправление на странице карточки персоны",
-            );
+          );
           return;
         }
 

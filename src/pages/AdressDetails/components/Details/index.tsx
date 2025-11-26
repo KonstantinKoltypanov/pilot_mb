@@ -5,12 +5,11 @@ import { colDefs } from "./colDefs";
 import type { AddressDetailDTO } from "../../api/useAddressDetailResource/interfaces";
 
 interface DetailsTableProps {
-  value?: AddressDetailDTO[]
+  value?: AddressDetailDTO[];
 }
 
 export const DetailsTable: React.FC<DetailsTableProps> = ({ value: data }) => {
-
-  console.log(data)
+  console.log(data);
 
   const paginationConfig: false | TablePaginationConfig | undefined = false;
 

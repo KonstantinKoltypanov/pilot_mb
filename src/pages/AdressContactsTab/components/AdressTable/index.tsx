@@ -1,6 +1,5 @@
 import React from "react";
 import { Table } from "antd";
-import { useNavigate } from "react-router-dom";
 import { colDefs } from "./colDefs";
 import type { AddressDTO } from "../../api/useAddressResource/interfaces";
 
@@ -10,7 +9,12 @@ interface AdressTableProps {
 }
 
 export const AdressTable: React.FC<AdressTableProps> = ({ data, loading }) => {
-  const navigate = useNavigate();
+  const handleRowClick = (record: any) => {
+    if (record?.id) {
+      const url = `/document/${record.id}`;
+      window.open(url, "_black", "width=1200,height=800");
+    }
+  };
 
   return (
     <Table
@@ -22,11 +26,7 @@ export const AdressTable: React.FC<AdressTableProps> = ({ data, loading }) => {
       dataSource={data}
       pagination={false}
       onRow={(record) => ({
-        onDoubleClick: () => {
-          if (record.id) {
-            navigate(`/address/${record.id}`);
-          }
-        },
+        onDoubleClick: () => handleRowClick(record),
         style: { height: 48, cursor: "pointer" },
       })}
     />

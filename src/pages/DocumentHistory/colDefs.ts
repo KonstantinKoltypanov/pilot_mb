@@ -76,28 +76,31 @@ export const colDefs: ColumnsType<DocumentRevision> = [
     dataIndex: ["documentData", "issueDate"],
     key: "issueDate",
     width: 120,
-    render: (value: string) => (value ? dayjs(value).format("DD.MM.YYYY") : "-"),
+    render: (value: string) =>
+      value ? dayjs(value).format("DD.MM.YYYY") : "-",
   },
   {
     title: "Дата окончания",
     dataIndex: ["documentData", "expirationDate"],
     key: "expirationDate",
     width: 120,
-    render: (value: string) => (value ? dayjs(value).format("DD.MM.YYYY") : "-"),
+    render: (value: string) =>
+      value ? dayjs(value).format("DD.MM.YYYY") : "-",
   },
   {
     title: "Действует с",
     dataIndex: ["documentData", "validFrom"],
     key: "validFrom",
     width: 120,
-    render: (value: string) => (value ? dayjs(value).format("DD.MM.YYYY") : "-"),
+    render: (value: string) =>
+      value ? dayjs(value).format("DD.MM.YYYY") : "-",
   },
   {
     title: "Действует по",
     dataIndex: ["documentData", "validTo"],
     key: "validTo",
     width: 120,
-    render: (value: string) => (value ? dayjs(value).format("DD.MM.YYYY") : "-"),
+    render: (value: string) =>
+      value ? dayjs(value).format("DD.MM.YYYY") : "-",
   },
 ];
-

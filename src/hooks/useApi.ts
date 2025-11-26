@@ -37,7 +37,7 @@ export const useApi = <T = any>({
             throw new Error("ID is required for this endpoint");
           }
           requestUrl = url.replace(":id", String(id));
-          console.log('da')
+          console.log("da");
         } else if (id !== undefined) {
           requestUrl = `${url}/${id}`;
         }

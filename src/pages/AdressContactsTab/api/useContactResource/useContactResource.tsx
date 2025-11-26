@@ -1,5 +1,5 @@
 import { useApi } from "../../../../hooks/useApi";
-import { type ContactDTO } from "./interfaces";
+import { type ContactDTO, type ContactCardDTO } from "./interfaces";
 export const useContactResource = () => {
   const getContactApi = useApi<ContactDTO[]>({
     url: "/api/contacts",
@@ -41,6 +41,11 @@ export const useContactResource = () => {
     method: "GET",
   });
 
+  const getContactCardApi = useApi<ContactCardDTO>({
+    url: "/api/contacts/:id/card",
+    method: "GET",
+  });
+
   return {
     getContactApi,
     putContactApi,
@@ -50,5 +55,6 @@ export const useContactResource = () => {
     postContactsApi,
     getPersonContactsApi,
     getCardApi,
+    getContactCardApi,
   };
 };

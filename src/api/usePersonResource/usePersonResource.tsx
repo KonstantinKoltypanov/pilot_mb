@@ -1,5 +1,9 @@
 import { useApi } from "../../hooks/useApi";
-import type { PersonDTO, PersonCardResponse, PersonRevision } from "./interfaces";
+import type {
+  PersonDTO,
+  PersonCardResponse,
+  PersonRevision,
+} from "./interfaces";
 
 export const usePersonResource = () => {
   const getPeopleApi = useApi<PersonDTO>({

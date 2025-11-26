@@ -13,7 +13,7 @@ export const DocumentsTable: React.FC<DocumentsTableProps> = ({ data }) => {
   const handleRowClick = (record: any) => {
     if (record?.id) {
       const url = `/document/${record.id}`;
-      window.open(url, "_self", "width=1200,height=800");
+      window.open(url, "_black", "width=1200,height=800");
     }
   };
 

@@ -94,7 +94,7 @@ export const colDefs: ColumnsType<AddressRevision> = [
     dataIndex: ["addressData", "validTo"],
     key: "validTo",
     width: 120,
-    render: (value: string) => (value ? dayjs(value).format("DD.MM.YYYY") : "-"),
+    render: (value: string) =>
+      value ? dayjs(value).format("DD.MM.YYYY") : "-",
   },
 ];
-

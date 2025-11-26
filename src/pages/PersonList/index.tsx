@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Table, Typography, Space, Button, Input, Select, message } from "antd";
-import type { TablePaginationConfig } from "antd/es/table";
+import type { TablePaginationConfig, TableProps } from "antd/es/table";
 import { usePersonResource } from "../../api/usePersonResource/usePersonResource";
 import { useReferenceResource } from "../../api/useReferenceResource/useReferenceResource";
 import type { PersonDTO } from "../../api/usePersonResource/interfaces";
@@ -36,8 +36,14 @@ export const PersonList: React.FC = () => {
     current: 1,
     pageSize: 20,
     showSizeChanger: true,
-    showTotal: (total) => `Всего: ${total}`,
+    showTotal: (total, range) => {
+      if (!range || !total) return "";
+      return `${range[0]}-${range[1]} из ${total}`;
+    },
   });
+  const [sortOrder, setSortOrder] = useState<string[]>([]);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [tableHeight, setTableHeight] = useState<number>(0);
 
   const isPersonListPage = useMemo(() => {
     const path = location.pathname;
@@ -98,28 +104,28 @@ export const PersonList: React.FC = () => {
       setPersonTypes(
         Array.isArray(personTypesData)
           ? personTypesData
-          : personTypesData?.data || []
+          : personTypesData?.data || [],
       );
       setLegalForms(
         Array.isArray(legalFormsData)
           ? legalFormsData
-          : legalFormsData?.data || []
+          : legalFormsData?.data || [],
       );
       setJurisdictions(
         Array.isArray(jurisdictionsData)
           ? jurisdictionsData
-          : jurisdictionsData?.data || []
+          : jurisdictionsData?.data || [],
       );
       setRoles(Array.isArray(rolesData) ? rolesData : rolesData?.data || []);
       setNameAndIdentitySearchTypes(
         Array.isArray(nameAndIdentitySearchTypesData)
           ? nameAndIdentitySearchTypesData
-          : nameAndIdentitySearchTypesData?.data || []
+          : nameAndIdentitySearchTypesData?.data || [],
       );
       setRoleSearchTypes(
         Array.isArray(roleSearchTypesData)
           ? roleSearchTypesData
-          : roleSearchTypesData?.data || []
+          : roleSearchTypesData?.data || [],
       );
     } catch (error: any) {
       console.error("Ошибка загрузки справочников:", error);
@@ -139,10 +145,15 @@ export const PersonList: React.FC = () => {
 
     setLoading(true);
     try {
+      const pageSize = pagination.pageSize || 20;
       const params: Record<string, any> = {
         page: (pagination.current || 1) - 1,
-        size: pagination.pageSize || 20,
+        size: pageSize + 1, // Запрашиваем на 1 больше для определения наличия следующей страницы
       };
+
+      if (sortOrder.length > 0) {
+        params.sort = sortOrder;
+      }
 
       if (filters.personTypes.length > 0) {
         params.personTypes = filters.personTypes;
@@ -171,25 +182,48 @@ export const PersonList: React.FC = () => {
 
       const result = await getPeoplesApi.fetch({ params });
 
-      const persons = Array.isArray(result)
+      const allPersons = Array.isArray(result)
         ? result
         : result?.content || result?.data || result?.items || [];
+
+      // Определяем, есть ли следующая страница
+      const hasNextPage = allPersons.length > pageSize;
+
+      // Обрезаем массив до нужного количества для отображения
+      const persons = hasNextPage ? allPersons.slice(0, pageSize) : allPersons;
       setData(persons);
 
-      if (result?.totalElements !== undefined) {
-        setPagination((prev) => ({
-          ...prev,
-          total: result.totalElements,
-        }));
-      } else if (result?.total !== undefined) {
-        setPagination((prev) => ({
-          ...prev,
-          total: result.total,
-        }));
+      // Вычисляем общее количество записей на основе текущей страницы и наличия следующей
+      const currentPage = pagination.current || 1;
+      let totalRecords: number | undefined;
+
+      if (hasNextPage) {
+        // Если есть следующая страница, устанавливаем число больше текущего диапазона,
+        // чтобы показать кнопку "следующая" и правильный диапазон в showTotal
+        totalRecords = currentPage * pageSize + 1;
+      } else {
+        // Если это последняя страница, вычисляем точное количество
+        totalRecords = (currentPage - 1) * pageSize + persons.length;
       }
+
+      setPagination((prev) => ({
+        ...prev,
+        total: totalRecords,
+        showQuickJumper: false,
+        showTotal: (total, range) => {
+          if (!range || !total) return "";
+
+          if (hasNextPage) {
+            // Если есть следующая страница, показываем диапазон с "+"
+            return `${range[0]}-${range[1]} из ${total}+`;
+          }
+          // Если это последняя страница, показываем точное количество
+          return `${range[0]}-${range[1]} из ${total}`;
+        },
+      }));
     } catch (error: any) {
       message.error(
-        `Ошибка загрузки данных: ${error.message || "Неизвестная ошибка"}`
+        `Ошибка загрузки данных: ${error.message || "Неизвестная ошибка"}`,
       );
       console.error("Ошибка загрузки персон:", error);
     } finally {
@@ -203,18 +237,159 @@ export const PersonList: React.FC = () => {
     }
   }, [isPersonListPage]);
 
+  // Сброс пагинации на первую страницу при изменении фильтров
+  useEffect(() => {
+    if (isPersonListPage) {
+      setPagination((prev) => ({
+        ...prev,
+        current: 1,
+      }));
+    }
+  }, [
+    filters.personTypes,
+    filters.legalForms,
+    filters.jurisdictions,
+    filters.nameAndIdentitySearchType,
+    filters.name,
+    filters.identity,
+    filters.roles,
+    filters.roleSearchType,
+  ]);
+
   useEffect(() => {
     if (isPersonListPage) {
       loadData();
     }
-  }, [pagination.current, pagination.pageSize, isPersonListPage]);
+  }, [
+    pagination.current,
+    pagination.pageSize,
+    isPersonListPage,
+    sortOrder,
+    filters,
+  ]);
 
-  const handleTableChange = (newPagination: TablePaginationConfig) => {
+  // Вычисление высоты таблицы для скролла
+  useEffect(() => {
+    if (!isPersonListPage) return;
+
+    const updateTableHeight = () => {
+      if (tableContainerRef.current) {
+        // Получаем высоту контейнера
+        const containerHeight = tableContainerRef.current.clientHeight;
+
+        // Если контейнер не имеет высоты, не обновляем
+        if (containerHeight === 0) {
+          return;
+        }
+
+        // Вычитаем padding контейнера (16px сверху и снизу = 32px)
+        let availableHeight = containerHeight - 32;
+
+        // Находим элементы таблицы
+        const tableWrapper =
+          tableContainerRef.current.querySelector(".ant-table-wrapper");
+        const tableHeader =
+          tableContainerRef.current.querySelector(".ant-table-thead");
+        const paginationElement =
+          tableContainerRef.current.querySelector(".ant-pagination");
+
+        if (tableWrapper && tableHeader && paginationElement) {
+          // Получаем реальные высоты элементов
+          const headerHeight = (tableHeader as HTMLElement).offsetHeight || 40;
+          const paginationHeight =
+            (paginationElement as HTMLElement).offsetHeight || 56;
+
+          // Вычитаем высоту заголовка, пагинации и отступы
+          // Отступы: 16px сверху от таблицы, 16px снизу от пагинации, 16px между элементами
+          const margins = 16 + 16 + 16;
+          availableHeight =
+            availableHeight - headerHeight - paginationHeight - margins;
+
+          // Дополнительная проверка: если расчет дал отрицательное или очень маленькое значение,
+          // используем более консервативный расчет
+          if (availableHeight < 100) {
+            availableHeight = containerHeight - 32 - 200; // Вычитаем фиксированные 200px для заголовка, пагинации и отступов
+          }
+        } else {
+          // Если элементы еще не отрендерены, используем примерные значения
+          // Заголовок ~40px, пагинация ~56px, отступы ~48px, дополнительный запас ~56px
+          availableHeight = availableHeight - 200;
+        }
+
+        // Устанавливаем минимальную высоту 200px
+        if (availableHeight > 200) {
+          setTableHeight(Math.floor(availableHeight));
+        } else if (availableHeight > 0) {
+          setTableHeight(200);
+        } else {
+          setTableHeight(200); // Минимальная высота даже если расчет отрицательный
+        }
+      }
+    };
+
+    // Используем ResizeObserver для отслеживания изменений размера
+    const resizeObserver = new ResizeObserver(() => {
+      setTimeout(updateTableHeight, 100);
+    });
+
+    if (tableContainerRef.current) {
+      resizeObserver.observe(tableContainerRef.current);
+    }
+
+    // Несколько проверок с задержками для корректного вычисления после рендера
+    const timeoutId1 = setTimeout(updateTableHeight, 150);
+    const timeoutId2 = setTimeout(updateTableHeight, 400);
+    const timeoutId3 = setTimeout(updateTableHeight, 700);
+    const timeoutId4 = setTimeout(updateTableHeight, 1200);
+
+    window.addEventListener("resize", updateTableHeight);
+    return () => {
+      clearTimeout(timeoutId1);
+      clearTimeout(timeoutId2);
+      clearTimeout(timeoutId3);
+      clearTimeout(timeoutId4);
+      window.removeEventListener("resize", updateTableHeight);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+    };
+  }, [data, pagination, isPersonListPage]);
+
+  const handleTableChange: TableProps<PersonDTO>["onChange"] = (
+    paginationConfig,
+    _filters,
+    sorter,
+  ) => {
+    // Обработка пагинации
     setPagination((prev) => ({
       ...prev,
-      current: newPagination.current,
-      pageSize: newPagination.pageSize,
+      current: paginationConfig.current,
+      pageSize: paginationConfig.pageSize,
     }));
+
+    // Обработка сортировки
+    if (sorter && !Array.isArray(sorter)) {
+      // Одна колонка сортировки
+      if (sorter.order) {
+        const order = sorter.order === "ascend" ? "asc" : "desc";
+        const field = sorter.field as string;
+        setSortOrder([`${field},${order}`]);
+      } else {
+        setSortOrder([]);
+      }
+    } else if (Array.isArray(sorter) && sorter.length > 0) {
+      // Несколько колонок сортировки
+      const sortArray = sorter
+        .filter((s) => s.order)
+        .map((s) => {
+          const order = s.order === "ascend" ? "asc" : "desc";
+          const field = s.field as string;
+          return `${field},${order}`;
+        });
+      setSortOrder(sortArray);
+    } else {
+      setSortOrder([]);
+    }
   };
 
   const handleRefresh = () => {
@@ -224,9 +399,9 @@ export const PersonList: React.FC = () => {
   const handleExport = async () => {
     try {
       message.loading({ content: "Экспорт в Excel...", key: "export" });
-      
+
       const params: Record<string, any> = {};
-      
+
       if (filters.personTypes.length > 0) {
         params.personTypes = filters.personTypes;
       }
@@ -271,11 +446,12 @@ export const PersonList: React.FC = () => {
 
       message.success({ content: "Экспорт завершен", key: "export" });
     } catch (error: any) {
-      message.error({ content: `Ошибка экспорта: ${error.message}`, key: "export" });
+      message.error({
+        content: `Ошибка экспорта: ${error.message}`,
+        key: "export",
+      });
     }
   };
-
-  console.log("TEST");
 
   return (
     <div
@@ -495,26 +671,51 @@ export const PersonList: React.FC = () => {
         </Space>
       </div>
 
-      <div style={{ flex: 1, overflow: "auto", padding: "16px 24px" }}>
-        <Table
-          columns={columns}
-          dataSource={data}
-          loading={loading}
-          pagination={pagination}
-          onChange={handleTableChange}
-          size="middle"
-          bordered
-          scroll={{ x: "max-content" }}
-          rowKey="id"
-          onRow={(record) => ({
-            onDoubleClick: () => {
-              navigate(`/person/${record.id}`, {
-                state: { personType: record.personType },
-              });
-            },
-            style: { cursor: "pointer" },
-          })}
-        />
+      <div
+        ref={tableContainerRef}
+        style={{
+          flex: 1,
+          overflow: "hidden",
+          position: "relative",
+          padding: "16px 24px",
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+          height: 0, // Важно для правильной работы flex
+        }}
+      >
+        <div
+          style={{
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
+          <Table
+            columns={columns}
+            dataSource={data}
+            loading={loading}
+            pagination={pagination}
+            onChange={handleTableChange}
+            size="middle"
+            bordered
+            scroll={{
+              x: "max-content",
+              y: tableHeight > 0 ? tableHeight : undefined,
+            }}
+            rowKey="id"
+            onRow={(record) => ({
+              onDoubleClick: () => {
+                navigate(`/person/${record.id}`, {
+                  state: { personType: record.personType },
+                });
+              },
+              style: { cursor: "pointer" },
+            })}
+          />
+        </div>
       </div>
     </div>
   );

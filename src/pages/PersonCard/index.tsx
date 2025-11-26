@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { ContentLayoutBody, ContentLayoutFooter } from "./ContentLayoutHelpers";
-import { Spin, Tabs, Typography, Button } from "antd";
+import { Spin, Tabs, Typography, Button, Tag, Space } from "antd";
 import { MainInfoTab } from "../MainInfoTab";
 import { DocumentsTab } from "../DocumentsTab";
 import { AdressContactsTab } from "../AdressContactsTab";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { usePersonResource } from "../../api/usePersonResource/usePersonResource";
 import { useReferenceResource } from "../../api/useReferenceResource/useReferenceResource";
 import HistoryOutlined from "@ant-design/icons/lib/icons/HistoryOutlined";
+import ArrowLeftOutlined from "@ant-design/icons/lib/icons/ArrowLeftOutlined";
 
 interface ReferenceItem {
   mnemocode: string;
@@ -28,6 +29,10 @@ interface ContentLayoutProps {
 
 export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const personTypeFromState = (location.state as { personType?: string })
+    ?.personType;
   const {
     getPeopleCardApi: { fetch, data },
   } = usePersonResource();
@@ -107,27 +112,46 @@ export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Typography.Title level={3} style={{ margin: 0 }}>
-            Карточка персоны
-          </Typography.Title>
+        <div
+          style={{ display: "flex", alignItems: "center", gap: 12, flex: 1 }}
+        >
           {data ? (
-            <>
-              {data.generalProperties?.legalForm && (
-                <Typography.Title level={3} style={{ margin: 0 }}>
-                  ({data.generalProperties.legalForm})
-                </Typography.Title>
-              )}
-              <Typography.Title level={3} style={{ margin: 0 }}>
-                {data.generalProperties?.firstName || ""}{" "}
-                {data.generalProperties?.lastName || ""}{" "}
-                {data.generalProperties?.middleName || ""}
+            <Space size="middle" align="center">
+              <Typography.Title
+                level={3}
+                style={{ margin: 0, fontWeight: 600 }}
+              >
+                {[
+                  data.generalProperties?.lastName,
+                  data.generalProperties?.firstName,
+                  data.generalProperties?.middleName,
+                ]
+                  .filter(Boolean)
+                  .join(" ") || "Не указано"}
               </Typography.Title>
-            </>
+              {personTypeFromState && (
+                <Tag
+                  color="default"
+                  style={{ fontSize: 14, padding: "4px 12px", margin: 0 }}
+                >
+                  {references.personTypes.find(
+                    (item) => item.mnemocode === personTypeFromState,
+                  )?.nameRu || personTypeFromState}
+                </Tag>
+              )}
+            </Space>
           ) : (
             <Spin />
           )}
         </div>
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate("/persons")}
+          style={{ marginRight: 8 }}
+        >
+          Реестр персон
+        </Button>
         {id && (
           <Button
             type="default"

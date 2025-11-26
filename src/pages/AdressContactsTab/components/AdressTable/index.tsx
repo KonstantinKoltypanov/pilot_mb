@@ -11,7 +11,7 @@ interface AdressTableProps {
 export const AdressTable: React.FC<AdressTableProps> = ({ data, loading }) => {
   const handleRowClick = (record: any) => {
     if (record?.id) {
-      const url = `/document/${record.id}`;
+      const url = `/address/${record.id}`;
       window.open(url, "_black", "width=1200,height=800");
     }
   };

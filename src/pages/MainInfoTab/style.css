@@ -1,3 +1,13 @@
+/* 
 .ant-space-item:has(.additionalParams_card) {
   width: 100%;
+} */
+
+.mainInfoTab {
+  display: flex;
+  align-items: flex-start;
+}
+
+.ant-space > .ant-space-item {
+  flex: 1;
 }

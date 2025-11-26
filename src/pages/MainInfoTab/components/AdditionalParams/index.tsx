@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from "react";
-import { Table, Button } from "antd";
+import { Table, Button, Typography, Flex } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import type { TablePaginationConfig } from "antd/es/table";
 import type {
@@ -118,16 +118,24 @@ export const AdditionalParams: React.FC<AdditionalParamsProps> = ({
 
   return (
     <div>
-      <div style={{ marginBottom: 16, textAlign: "right" }}>
-        <Button
-          type="default"
-          icon={<EyeOutlined />}
-          onClick={handleToggleShowAll}
-        >
-          {showAll ? "Скрыть пустые" : "Показывать все"}
-        </Button>
-      </div>
       <Table
+        title={() => (
+          <Flex justify="space-between" align="center">
+            <Typography.Title
+              level={5}
+              style={{ margin: 0, padding: "0 24px" }}
+            >
+              Дополнительные параметры
+            </Typography.Title>
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={handleToggleShowAll}
+            >
+              {showAll ? "Скрыть пустые" : "Показывать все"}
+            </Button>
+          </Flex>
+        )}
         size="middle"
         bordered
         columns={colDefs}

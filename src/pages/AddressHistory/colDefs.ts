@@ -54,6 +54,12 @@ export const colDefs: ColumnsType<AddressRevision> = [
     width: 150,
   },
   {
+    title: "Значение",
+    dataIndex: "value",
+    key: "value",
+    width: 150,
+  },
+  {
     title: "Тип адреса",
     dataIndex: ["addressData", "addressType"],
     key: "addressType",

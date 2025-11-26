@@ -57,22 +57,6 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
     }
   };
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          height: "100%",
-          minHeight: 200,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Spin size="large" />
-      </div>
-    );
-  }
-
   return (
     <div
       style={{
@@ -247,9 +231,7 @@ export const DocumentCard: React.FC<ContentLayoutProps> = (props) => {
         />
       </ContentLayoutBody>
       {!hideFooter && (
-        <ContentLayoutFooter>
-          {data ? <Typography.Text>{data.personId}</Typography.Text> : null}
-        </ContentLayoutFooter>
+        <ContentLayoutFooter>{data ? data.personId : null}</ContentLayoutFooter>
       )}
     </div>
   );

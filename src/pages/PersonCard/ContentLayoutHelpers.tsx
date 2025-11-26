@@ -31,8 +31,9 @@ export const ContentLayoutFooter: React.FC<ContentLayoutFooterProps> = ({
   return (
     <div
       style={{
-        width: "100%",
+        borderTop: "solid 1px #f0f0f0",
         height: "40px",
+        paddingLeft: 24,
       }}
     >
       {children}

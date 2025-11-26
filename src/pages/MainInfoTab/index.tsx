@@ -51,10 +51,7 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
   }, [data, form]);
 
   return (
-    <Space
-      direction="vertical"
-      style={{ display: "flex", alignItems: "center" }}
-    >
+    <Space direction="horizontal" className="mainInfoTab">
       <Card title="Основные параметры">
         <Form form={form} layout="vertical" style={{ maxWidth: 700 }}>
           <Flex
@@ -88,28 +85,21 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
           >
             <Input style={{ width: "100%" }} readOnly />
           </Form.Item>
-          <Form.Item label="Организационно-правовая форма" name="legalForm">
-            <Select
-              placeholder="Выберите ОПФ..."
-              allowClear
-              showSearch
-              filterOption={(input, option) => {
-                const label =
-                  typeof option?.label === "string"
-                    ? option.label
-                    : String(option?.children || "");
-                return label.toLowerCase().includes(input.toLowerCase());
-              }}
-            >
-              {references.legalForms.map((item) => {
-                if (!item.mnemocode) return null;
-                return (
-                  <Select.Option key={item.mnemocode} value={item.mnemocode}>
-                    {item.nameRu || item.mnemocode}
-                  </Select.Option>
-                );
-              })}
-            </Select>
+          <Form.Item
+            label="Организационно-правовая форма"
+            name="legalForm"
+            getValueProps={(value) => {
+              const legalFormName = value
+                ? references.legalForms.find((item) => item.mnemocode === value)
+                    ?.nameRu || value
+                : "";
+              return { value: legalFormName };
+            }}
+          >
+            <Input
+              placeholder="Организационно-правовая форма не указана"
+              readOnly
+            />
           </Form.Item>
           <Form.Item label="Роли" name="roles">
             <Form.Item
@@ -174,29 +164,16 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
               label="Гражданство"
               name="citizenship"
               style={{ flex: 1 }}
+              getValueProps={(value) => {
+                const citizenshipName = value
+                  ? references.countries.find(
+                      (item) => item.mnemocode === value,
+                    )?.nameRu || value
+                  : "";
+                return { value: citizenshipName };
+              }}
             >
-              <Form.Item
-                noStyle
-                shouldUpdate={(prevValues, currentValues) =>
-                  prevValues?.citizenship !== currentValues?.citizenship
-                }
-              >
-                {({ getFieldValue }) => {
-                  const citizenshipCode = getFieldValue("citizenship");
-                  const citizenshipName = citizenshipCode
-                    ? references.countries.find(
-                        (item) => item.mnemocode === citizenshipCode,
-                      )?.nameRu || citizenshipCode
-                    : "";
-                  return (
-                    <Input
-                      placeholder="Гражданство не указано"
-                      readOnly
-                      value={citizenshipName}
-                    />
-                  );
-                }}
-              </Form.Item>
+              <Input placeholder="Гражданство не указано" readOnly />
             </Form.Item>
             <Form.Item
               label="Тип гражданства"
@@ -211,7 +188,7 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
           </Flex>
         </Form>
       </Card>
-      <Card title="Дополнительные параметры" className="additionalParams_card">
+      {/* <Card title="Дополнительные параметры" className="additionalParams_card">
         <div
           style={{
             background: "#ffffff",
@@ -223,7 +200,8 @@ export const MainInfoTab: React.FC<ContainerProps> = ({ data, references }) => {
         >
           <AdditionalParams data={data} references={references} />
         </div>
-      </Card>
+      </Card> */}
+      <AdditionalParams data={data} references={references} />
     </Space>
   );
 };

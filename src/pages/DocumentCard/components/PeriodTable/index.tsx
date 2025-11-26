@@ -1,5 +1,5 @@
 import React from "react";
-import { Table } from "antd";
+import { Table, Typography } from "antd";
 import type { TablePaginationConfig } from "antd/es/table";
 import { colDefs } from "./colDefs";
 
@@ -13,7 +13,11 @@ export const PeriodTable: React.FC<PeriodTableProps> = ({ data, loading }) => {
 
   return (
     <Table
-      title={() => "Период действий"}
+      title={() => (
+        <Typography.Title level={5} style={{ margin: 0 }}>
+          Период действий
+        </Typography.Title>
+      )}
       size="middle"
       bordered
       loading={loading}

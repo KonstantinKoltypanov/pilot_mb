@@ -188,9 +188,7 @@ export const PersonCard: React.FC<ContentLayoutProps> = ({ hideFooter }) => {
         />
       </ContentLayoutBody>
       {!hideFooter && (
-        <ContentLayoutFooter>
-          {data?.id ? <Typography.Text>{data.id}</Typography.Text> : null}
-        </ContentLayoutFooter>
+        <ContentLayoutFooter>{data?.id ? data.id : null}</ContentLayoutFooter>
       )}
     </div>
   );

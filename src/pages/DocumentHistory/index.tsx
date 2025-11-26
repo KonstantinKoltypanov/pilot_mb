@@ -28,14 +28,15 @@ export const DocumentHistory: React.FC = () => {
     return (
       <div
         style={{
-          height: "100%",
+          height: "100vh",
+          width: "100vw",
           minHeight: 200,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
         }}
       >
-        <Spin size="large" />
+        <Spin size="large">Загружаем историю...</Spin>
       </div>
     );
   }
